@@ -21,6 +21,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        // Create tasks for the user
         Task::factory()->count(8)->for($user)->create();
+
+        // Seed time logs
+        $this->call(TimeLogSeeder::class);
     }
 }
+

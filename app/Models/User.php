@@ -50,12 +50,27 @@ class User extends Authenticatable implements MustVerifyEmailContract
     }
 
     /**
-     * Get the tasks for the user.
-     *
-     * @return HasMany<\App\Models\Task>
+     * Get all tasks for this user.
      */
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * Get all time logs for this user.
+     */
+    public function timeLogs(): HasMany
+    {
+        return $this->hasMany(TimeLog::class);
+    }
+
+    /**
+     * Get all reminders for this user.
+     */
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(Reminder::class);
+    }
 }
+    

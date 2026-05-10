@@ -13,8 +13,8 @@
     $sidebarLinks = [
         ['label' => 'Dashboard', 'href' => url('/dashboard'), 'active' => false],
         ['label' => 'Tasks', 'href' => url('/tasks'), 'active' => true],
-        ['label' => 'Time Tracking', 'href' => '#', 'active' => false],
-        ['label' => 'Analytics', 'href' => '#', 'active' => false],
+        ['label' => 'Time Tracking', 'href' => route('time.index'), 'active' => false],
+        ['label' => 'Analytics', 'href' => route('analytics.index'), 'active' => false],
         ['label' => 'Settings', 'href' => '#', 'active' => false],
     ];
 @endphp

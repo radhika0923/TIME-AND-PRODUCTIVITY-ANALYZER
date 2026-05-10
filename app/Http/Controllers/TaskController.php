@@ -9,94 +9,66 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
-        $query = $user->tasks();
-
-        // Filter by status
-        if ($request->has('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+        $query = $request->user()->tasks()->latest();
+        
+        if ($request->has('filter')) {
+            if ($request->filter === 'completed') {
+                $query->where('status', 'completed');
+            } elseif ($request->filter === 'pending') {
+                $query->where('status', 'pending');
+            }
         }
 
-        // Search
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Sort
-        $sortBy = $request->get('sort', 'due_date');
-        $sortDirection = $request->get('direction', 'asc');
-
-        if ($sortBy === 'priority') {
-            $priorityOrder = ['high' => 1, 'medium' => 2, 'low' => 3];
-            $query->orderByRaw('CASE 
-                WHEN priority = "high" THEN 1
-                WHEN priority = "medium" THEN 2
-                WHEN priority = "low" THEN 3
-                ELSE 4 END ' . $sortDirection);
-        } else {
-            $query->orderBy($sortBy, $sortDirection);
-        }
-
-        $tasks = $query->paginate(12);
-
-        $totalTasks = $user->tasks()->count();
-        $completedTasks = $user->tasks()->where('status', 'completed')->count();
-        $pendingTasks = $user->tasks()->where('status', 'pending')->count();
-
-        return view('tasks.index', compact('tasks', 'totalTasks', 'completedTasks', 'pendingTasks'));
+        $tasks = $query->get();
+        return view('tasks', compact('tasks'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'required|in:low,medium,high',
-            'due_date' => 'nullable|date',
+            'description' => 'nullable|string',
         ]);
 
-        $task = $request->user()->tasks()->create($validated);
+        $request->user()->tasks()->create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'status' => 'pending',
+        ]);
 
-        return response()->json($task, 201);
+        return redirect()->back()->with('success', 'Task added successfully.');
     }
 
-    public function update(Request $request, Task $task)
+    public function update(Request $request, $id)
     {
-        $this->authorize('update', $task);
+        $task = Task::where('user_id', $request->user()->id)->findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'priority' => 'sometimes|required|in:low,medium,high',
-            'due_date' => 'nullable|date',
-            'status' => 'sometimes|required|in:pending,completed',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         $task->update($validated);
 
-        return response()->json($task);
+        return redirect()->back()->with('success', 'Task updated successfully.');
     }
 
-    public function destroy(Request $request, Task $task)
+    public function destroy(Request $request, $id)
     {
-        $this->authorize('delete', $task);
-
+        $task = Task::where('user_id', $request->user()->id)->findOrFail($id);
         $task->delete();
 
-        return response()->json(['message' => 'Task deleted successfully']);
+        return redirect()->back()->with('success', 'Task deleted successfully.');
     }
 
-    public function toggleStatus(Request $request, Task $task)
+    public function markComplete(Request $request, $id)
     {
-        $this->authorize('update', $task);
+        $task = Task::where('user_id', $request->user()->id)->findOrFail($id);
+        
+        $task->update([
+            'status' => $task->status === 'completed' ? 'pending' : 'completed'
+        ]);
 
-        $newStatus = $task->status === 'completed' ? 'pending' : 'completed';
-        $task->update(['status' => $newStatus]);
-
-        return response()->json(['status' => $newStatus]);
+        return redirect()->back()->with('success', 'Task status updated.');
     }
 }
