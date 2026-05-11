@@ -92,6 +92,13 @@ class DashboardController extends Controller
             ];
         })->all();
 
+        $focusInsight = match (true) {
+            $totalMinutes < 1 => 'Start a focus session from Time Tracking to populate your weekly chart and recent activity.',
+            $pendingTasks > 0 && $completedTasks > 0 => "You have {$pendingTasks} pending task".($pendingTasks === 1 ? '' : 's')." and {$completedTasks} completed—short focus blocks help move pending work forward.",
+            $pendingTasks > 0 => "You have {$pendingTasks} pending task".($pendingTasks === 1 ? '' : 's').'. Try pairing the next task with a timed focus session.',
+            default => "You've logged {$totalTime} total hours of focus time. Open Analytics to see trends over time.",
+        };
+
         return view('dashboard', [
             'totalTasks' => $totalTasks,
             'completedTasks' => $completedTasks,
@@ -102,6 +109,7 @@ class DashboardController extends Controller
             'chartData' => $chartData,
             'recentActivities' => $recentActivities,
             'topTaskProgress' => $topTaskProgress,
+            'focusInsight' => $focusInsight,
         ]);
     }
 }

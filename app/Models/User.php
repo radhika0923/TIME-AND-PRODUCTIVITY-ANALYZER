@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -46,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'focus_timer_started_at' => 'datetime',
         ];
     }
 
@@ -79,5 +81,13 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
+    }
+
+    /**
+     * Task linked to the in-progress focus timer (if any).
+     */
+    public function focusTimerTask(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'focus_timer_task_id');
     }
 }

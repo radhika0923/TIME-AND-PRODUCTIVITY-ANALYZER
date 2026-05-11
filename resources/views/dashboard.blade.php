@@ -5,7 +5,7 @@
                         <h1 class="text-3xl font-semibold tracking-tight text-white mb-1">Welcome back, {{ auth()->user()->name ?? 'User' }}</h1>
                         <p class="text-slate-400 text-sm flex items-center gap-2">
                             <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                            You're more productive than 70% of users this week
+                            Your tasks, focus time, and weekly chart in one place
                         </p>
                     </div>
                     <div class="flex items-center gap-4">
@@ -28,10 +28,6 @@
                             <div class="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                12%
-                            </span>
                         </div>
                         <h3 class="text-3xl font-semibold text-white mb-1">{{ $totalTasks ?? 0 }}</h3>
                         <p class="text-sm text-slate-500 font-medium">Total Tasks</p>
@@ -43,10 +39,6 @@
                             <div class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                8%
-                            </span>
                         </div>
                         <h3 class="text-3xl font-semibold text-white mb-1">{{ $completedTasks ?? 0 }}</h3>
                         <p class="text-sm text-slate-500 font-medium">Completed Tasks</p>
@@ -58,10 +50,6 @@
                             <div class="p-2.5 bg-amber-500/10 rounded-xl text-amber-400 group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-medium text-slate-400 bg-slate-800 px-2 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path></svg>
-                                0%
-                            </span>
                         </div>
                         <h3 class="text-3xl font-semibold text-white mb-1">{{ $pendingTasks ?? 0 }}</h3>
                         <p class="text-sm text-slate-500 font-medium">Pending Tasks</p>
@@ -73,10 +61,6 @@
                             <div class="p-2.5 bg-purple-500/10 rounded-xl text-purple-400 group-hover:scale-110 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
-                            <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                24%
-                            </span>
                         </div>
                         <h3 class="text-3xl font-semibold text-white mb-1">{{ $totalTime ?? 0 }}h</h3>
                         <p class="text-sm text-slate-500 font-medium">Total Focus Time</p>
@@ -186,18 +170,18 @@
                             <div class="p-2 bg-indigo-500/20 rounded-lg text-indigo-400">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
-                            <h2 class="text-lg font-semibold text-white">AI Insight</h2>
+                            <h2 class="text-lg font-semibold text-white">Insight</h2>
                         </div>
                         
                         <div class="flex-1 flex flex-col justify-center relative z-10">
-                            <p class="text-slate-300 leading-relaxed italic text-lg mb-6">
-                                "You're completing tasks 20% faster when you schedule them in the morning. Consider moving heavy logic work to your 9 AM block."
+                            <p class="text-slate-300 leading-relaxed text-lg mb-6">
+                                {{ $focusInsight ?? 'Use Time Tracking for focus blocks and Tasks to organize what you work on next.' }}
                             </p>
                             <div class="mt-auto">
-                                <button class="text-indigo-400 text-sm font-medium hover:text-indigo-300 flex items-center gap-1 transition-colors">
-                                    View detailed analysis
+                                <a href="{{ route('analytics.index') }}" class="text-indigo-400 text-sm font-medium hover:text-indigo-300 inline-flex items-center gap-1 transition-colors">
+                                    Open analytics
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

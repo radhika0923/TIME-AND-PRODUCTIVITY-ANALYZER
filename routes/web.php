@@ -69,8 +69,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Time Tracking Routes
     Route::get('/time-tracking', [TimeTrackingController::class, 'index'])->name('time.index');
-    Route::post('/time/start', [TimeTrackingController::class, 'start'])->name('time.start');
-    Route::post('/time/stop', [TimeTrackingController::class, 'stop'])->name('time.stop');
+    Route::post('/time/start', [TimeTrackingController::class, 'start'])
+        ->middleware('throttle:30,1')
+        ->name('time.start');
+    Route::post('/time/stop', [TimeTrackingController::class, 'stop'])
+        ->middleware('throttle:30,1')
+        ->name('time.stop');
 
     // Analytics Route
     Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');

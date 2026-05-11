@@ -7,7 +7,7 @@
     <title>Time Tracking - Time & Productivity Analyzer</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }
@@ -162,10 +162,18 @@
                 
                 <h1 class="text-3xl font-semibold tracking-tight text-white mb-2">Time Tracking</h1>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                     x-data="timerApp({
+                        initialSeconds: {{ (int) $runningDuration }},
+                        initialRunning: {{ $activeSession ? 'true' : 'false' }},
+                        initialTaskName: @json($activeSession['task_name'] ?? ''),
+                        totalTodayMinutes: {{ (int) $totalTimeToday }},
+                        urlStart: @json(route('time.start')),
+                        urlStop: @json(route('time.stop'))
+                     })"
+                     @keydown.window="handleGlobalKey($event)">
                     <!-- TIMER SECTION (Main Focus) -->
-                    <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden" 
-                         x-data="timerApp({{ $runningDuration }}, {{ $activeSession ? 'true' : 'false' }}, '{{ $activeSession['task_name'] ?? '' }}')">
+                    <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
                         
                         <!-- Decorative inner glow based on state -->
                         <div class="absolute inset-0 transition-opacity duration-1000 pointer-events-none" 
@@ -202,24 +210,33 @@
                             </div>
 
                             <!-- Digital Display -->
-                            <div class="font-mono text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-white mb-10 text-shadow-glow flex items-center justify-center tabular-nums" style="text-shadow: 0 0 40px rgba(99,102,241,0.2);">
-                                <span x-text="formattedTime"></span>
+                            <div class="font-mono text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-white mb-4 text-shadow-glow flex items-center justify-center tabular-nums" style="text-shadow: 0 0 40px rgba(99,102,241,0.2);">
+                                <span role="timer" aria-live="polite" aria-atomic="true" x-text="formattedTime"></span>
                             </div>
+                            <p class="text-xs text-slate-500 text-center max-w-md mb-6">
+                                Only sessions of <strong class="text-slate-400">1 minute or longer</strong> are saved. Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-[10px]">Space</kbd> outside inputs to start or stop.
+                            </p>
 
                             <!-- Action Buttons -->
-                            <div class="flex items-center gap-4">
+                            <div class="flex flex-col sm:flex-row items-center gap-4">
                                 <!-- Start Button -->
-                                <button x-show="!isRunning" @click="startTimer()" 
-                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-indigo-500 rounded-full hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 w-48">
-                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    Start Timer
+                                <button type="button" x-show="!isRunning" @click="startTimer()"
+                                        :disabled="busyStart"
+                                        :aria-busy="busyStart"
+                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-indigo-500 rounded-full hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+                                    <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStart"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStart" x-cloak></span>
+                                    <span x-text="busyStart ? 'Starting…' : 'Start Timer'"></span>
                                 </button>
 
                                 <!-- Stop Button -->
-                                <button x-show="isRunning" x-cloak @click="stopTimer()" 
-                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-rose-500 rounded-full hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-1 w-48">
-                                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
-                                    Stop & Save
+                                <button type="button" x-show="isRunning" x-cloak @click="stopTimer()"
+                                        :disabled="busyStop"
+                                        :aria-busy="busyStop"
+                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-rose-500 rounded-full hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
+                                    <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStop"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+                                    <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStop" x-cloak></span>
+                                    <span x-text="busyStop ? 'Saving…' : 'Stop & Save'"></span>
                                 </button>
                             </div>
                             
@@ -235,15 +252,14 @@
                         <div class="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                             <div class="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-indigo-500/20 blur-2xl rounded-full"></div>
                             <span class="text-slate-400 text-sm font-medium mb-2">Total Focus Time</span>
-                            <div class="text-4xl font-bold text-white mb-1">
-                                {{ floor($totalTimeToday / 60) }}h {{ $totalTimeToday % 60 }}m
+                            <div class="text-4xl font-bold text-white mb-1 font-mono tabular-nums">
+                                <span x-text="formattedTodayTotal"></span>
                             </div>
-                            @if($totalTimeToday > 0)
-                                <div class="text-xs text-indigo-400 flex items-center gap-1 mt-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                    Productive day!
-                                </div>
-                            @endif
+                            <p x-show="isRunning" x-cloak class="text-[11px] text-indigo-400/90 mt-1">Includes this session (estimate)</p>
+                            <div x-show="totalTodayMinutes > 0 || (isRunning && seconds >= 60)" x-cloak class="text-xs text-indigo-400 flex items-center justify-center gap-1 mt-2">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                Productive day!
+                            </div>
                         </div>
 
                         <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 flex items-center justify-between">
@@ -264,7 +280,7 @@
                         <h2 class="text-lg font-semibold text-white">Recent Sessions</h2>
                     </div>
                     
-                    @if($logs->isEmpty())
+                    @if($logs->total() === 0)
                         <div class="p-12 text-center">
                             <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-500 mb-4 mx-auto">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -304,6 +320,23 @@
                                 </tbody>
                             </table>
                         </div>
+                        @if($logs->hasPages())
+                            <div class="px-6 py-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-slate-400">
+                                <p>Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }}</p>
+                                <div class="flex items-center gap-4">
+                                    @if($logs->onFirstPage())
+                                        <span class="opacity-40 cursor-not-allowed">Previous</span>
+                                    @else
+                                        <a href="{{ $logs->previousPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Previous</a>
+                                    @endif
+                                    @if($logs->hasMorePages())
+                                        <a href="{{ $logs->nextPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Next</a>
+                                    @else
+                                        <span class="opacity-40 cursor-not-allowed">Next</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -314,14 +347,19 @@
     <!-- Alpine Timer Component Logic -->
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('timerApp', (initialSeconds, initialRunningState, initialTaskName) => ({
-                seconds: initialSeconds || 0,
-                isRunning: initialRunningState || false,
-                activeTaskName: initialTaskName || '',
+            Alpine.data('timerApp', (config) => ({
+                seconds: Number(config.initialSeconds) || 0,
+                isRunning: Boolean(config.initialRunning),
+                activeTaskName: config.initialTaskName || '',
+                totalTodayMinutes: Number(config.totalTodayMinutes) || 0,
+                urlStart: config.urlStart,
+                urlStop: config.urlStop,
                 selectedTask: '',
                 timerInterval: null,
                 message: '',
                 isError: false,
+                busyStart: false,
+                busyStop: false,
                 csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
 
                 get formattedTime() {
@@ -331,9 +369,32 @@
                     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
                 },
 
+                get formattedTodayTotal() {
+                    const extra = this.isRunning ? Math.floor(this.seconds / 60) : 0;
+                    const m = this.totalTodayMinutes + extra;
+                    const h = Math.floor(m / 60);
+                    const min = m % 60;
+                    return `${h}h ${min}m`;
+                },
+
                 init() {
                     if (this.isRunning) {
                         this.startTick();
+                    }
+                },
+
+                handleGlobalKey(e) {
+                    if (e.code !== 'Space') return;
+                    const t = e.target;
+                    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) {
+                        return;
+                    }
+                    e.preventDefault();
+                    if (this.busyStart || this.busyStop) return;
+                    if (this.isRunning) {
+                        this.stopTimer();
+                    } else {
+                        this.startTimer();
                     }
                 },
 
@@ -367,10 +428,10 @@
                 },
 
                 async startTimer() {
-                    if (this.isRunning) return;
-                    
+                    if (this.isRunning || this.busyStart) return;
+                    this.busyStart = true;
                     try {
-                        const response = await fetch('/time/start', {
+                        const response = await fetch(this.urlStart, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -379,6 +440,11 @@
                             },
                             body: JSON.stringify({ task_id: this.selectedTask || null })
                         });
+
+                        if (response.status === 419) {
+                            this.showMessage('Session expired. Refresh the page or sign in again.', true);
+                            return;
+                        }
 
                         const data = await this.parseJsonSafely(response);
 
@@ -389,18 +455,23 @@
                             this.startTick();
                             this.showMessage('Timer started successfully.', false);
                         } else {
-                            this.showMessage(data?.error || 'Failed to start timer.', true);
+                            const msg = data?.message
+                                ? (typeof data.message === 'string' ? data.message : Object.values(data.message).flat().join(' '))
+                                : (data?.error || 'Failed to start timer.');
+                            this.showMessage(msg, true);
                         }
-                    } catch (error) {
+                    } catch {
                         this.showMessage('Request failed. Please try again.', true);
+                    } finally {
+                        this.busyStart = false;
                     }
                 },
 
                 async stopTimer() {
-                    if (!this.isRunning) return;
-
+                    if (!this.isRunning || this.busyStop) return;
+                    this.busyStop = true;
                     try {
-                        const response = await fetch('/time/stop', {
+                        const response = await fetch(this.urlStop, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -408,6 +479,11 @@
                                 'Accept': 'application/json'
                             }
                         });
+
+                        if (response.status === 419) {
+                            this.showMessage('Session expired. Refresh the page or sign in again.', true);
+                            return;
+                        }
 
                         const data = await this.parseJsonSafely(response);
 
@@ -417,21 +493,29 @@
                             this.seconds = 0;
                             this.selectedTask = '';
                             this.activeTaskName = '';
-                            
-                            // Reload page to update history table
-                            window.location.reload();
+
+                            if (data?.logged) {
+                                window.location.reload();
+                            } else {
+                                this.showMessage(data?.message || 'Session was under 1 minute and was not saved.', false);
+                            }
                         } else {
-                            this.showMessage(data?.error || 'Failed to stop timer.', true);
+                            const msg = data?.message
+                                ? (typeof data.message === 'string' ? data.message : Object.values(data.message).flat().join(' '))
+                                : (data?.error || 'Failed to stop timer.');
+                            this.showMessage(msg, true);
                         }
-                    } catch (error) {
+                    } catch {
                         this.showMessage('Request failed. Please try again.', true);
+                    } finally {
+                        this.busyStop = false;
                     }
                 },
 
                 showMessage(msg, isErr) {
                     this.message = msg;
                     this.isError = isErr;
-                    setTimeout(() => { this.message = ''; }, 3000);
+                    setTimeout(() => { this.message = ''; }, 4000);
                 }
             }));
         });
