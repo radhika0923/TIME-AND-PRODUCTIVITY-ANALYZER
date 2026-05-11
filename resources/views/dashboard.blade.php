@@ -74,10 +74,16 @@
                     <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-lg font-semibold text-white">Weekly Productivity</h2>
-                            <select class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2">
-                                <option>This Week</option>
-                                <option>Last Week</option>
-                            </select>
+                            <form method="get" class="inline-block">
+                                <label for="dash-week" class="sr-only">Chart week</label>
+                                <select id="dash-week" name="week" onchange="this.form.submit()" class="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2">
+                                    @for($w = 0; $w <= 12; $w++)
+                                        <option value="{{ $w }}" @selected(($weekOffset ?? 0) == $w)>
+                                            {{ $w === 0 ? 'This week' : ($w === 1 ? 'Last week' : $w.' weeks ago') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </form>
                         </div>
                         <div class="relative h-72 w-full">
                             <canvas id="productivityChart"></canvas>
@@ -144,7 +150,7 @@
                                         @if($activity['type'] === 'completed')
                                             <h4 class="text-sm font-medium text-slate-200">Completed <span class="text-white">'{{ $activity['title'] }}'</span></h4>
                                         @elseif($activity['type'] === 'focus')
-                                            <h4 class="text-sm font-medium text-slate-200">Focus session on <span class="text-white">'{{ $activity['title'] }}'</span> <span class="text-slate-500">({{ $activity['duration'] ?? 0 }} min)</span></h4>
+                                            <h4 class="text-sm font-medium text-slate-200">Focus session on <span class="text-white">'{{ $activity['title'] }}'</span> <span class="text-slate-500">({{ $activity['duration_label'] ?? '' }})</span></h4>
                                         @else
                                             <h4 class="text-sm font-medium text-slate-200">Created task <span class="text-white">'{{ $activity['title'] }}'</span></h4>
                                         @endif

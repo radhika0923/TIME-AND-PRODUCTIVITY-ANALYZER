@@ -2,75 +2,81 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Support\Duration;
+use App\Support\UserTime;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AnalyticsController extends Controller
 {
     public function index(Request $request)
     {
         $user = $request->user();
+        $tz = UserTime::timezone($user);
 
-        // Basic Stats
         $totalTasks = $user->tasks()->count();
         $completedTasks = $user->tasks()->where('status', 'completed')->count();
-        $totalTime = $user->timeLogs()->sum('duration'); // Total time in minutes
+        $totalSecondsAll = (int) $user->timeLogs()->sum('duration');
 
-        // Productivity Score
         $productivityScore = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
 
-        // Last 7 days dates for charts
         $last7Days = [];
+        $anchorDay = Carbon::now($tz)->startOfDay();
         for ($i = 6; $i >= 0; $i--) {
-            $last7Days[] = Carbon::today()->subDays($i)->format('Y-m-d');
+            $last7Days[] = $anchorDay->copy()->subDays($i)->format('Y-m-d');
         }
 
-        // Weekly Time Data
         $weeklyTimeData = [];
-        $weeklyTimeQuery = $user->timeLogs()
-            ->selectRaw('DATE(created_at) as date, SUM(duration) as total')
-            ->where('created_at', '>=', Carbon::today()->subDays(6))
-            ->groupBy('date')
-            ->pluck('total', 'date')
-            ->toArray();
-
         foreach ($last7Days as $date) {
-            $weeklyTimeData[] = isset($weeklyTimeQuery[$date]) ? round($weeklyTimeQuery[$date] / 60, 2) : 0; // Convert to hours
+            [$ds, $de] = UserTime::dayUtcRange($user, $date);
+            $sec = (int) $user->timeLogs()->whereBetween('created_at', [$ds, $de])->sum('duration');
+            $weeklyTimeData[] = round($sec / 3600, 2);
         }
 
-        // Completed Tasks Per Day
         $completedTasksPerDay = [];
         $completedTasksQuery = $user->tasks()
             ->selectRaw('DATE(updated_at) as date, COUNT(*) as total')
             ->where('status', 'completed')
-            ->where('updated_at', '>=', Carbon::today()->subDays(6))
+            ->where('updated_at', '>=', Carbon::now($tz)->subDays(6)->startOfDay()->utc())
             ->groupBy('date')
             ->pluck('total', 'date')
             ->toArray();
 
         foreach ($last7Days as $date) {
-            $completedTasksPerDay[] = $completedTasksQuery[$date] ?? 0;
+            $completedTasksPerDay[] = (int) ($completedTasksQuery[$date] ?? 0);
         }
 
-        // Time Analysis
-        $totalTimeThisWeek = array_sum($weeklyTimeData); // in hours
+        $totalTimeThisWeek = array_sum($weeklyTimeData);
         $avgDailyFocusTime = round($totalTimeThisWeek / 7, 2);
 
-        // Chart Labels
-        $chartLabels = array_map(function ($date) {
-            return Carbon::parse($date)->format('D');
+        $chartLabels = array_map(function ($date) use ($tz) {
+            return Carbon::parse($date, $tz)->format('D');
         }, $last7Days);
+
+        $focusStreak = 0;
+        for ($i = 0; $i < 365; $i++) {
+            $d = Carbon::now($tz)->startOfDay()->subDays($i)->format('Y-m-d');
+            [$ds, $de] = UserTime::dayUtcRange($user, $d);
+            $sec = (int) $user->timeLogs()->whereBetween('created_at', [$ds, $de])->sum('duration');
+            if ($sec < 60) {
+                break;
+            }
+            $focusStreak++;
+        }
+
+        $totalTimeLifetimeLabel = Duration::format($totalSecondsAll);
 
         return view('analytics', compact(
             'totalTasks',
             'completedTasks',
-            'totalTime',
+            'totalTimeLifetimeLabel',
             'productivityScore',
             'weeklyTimeData',
             'completedTasksPerDay',
             'totalTimeThisWeek',
             'avgDailyFocusTime',
-            'chartLabels'
+            'chartLabels',
+            'focusStreak'
         ));
     }
 }

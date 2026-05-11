@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TimeLogController;
 use App\Http\Controllers\TimeTrackingController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Time Tracking Routes
     Route::get('/time-tracking', [TimeTrackingController::class, 'index'])->name('time.index');
+    Route::get('/time-tracking/export', [TimeLogController::class, 'export'])->name('time.export');
+    Route::patch('/time-logs/{time_log}', [TimeLogController::class, 'update'])->name('time-logs.update');
+    Route::delete('/time-logs/{time_log}', [TimeLogController::class, 'destroy'])->name('time-logs.destroy');
     Route::post('/time/start', [TimeTrackingController::class, 'start'])
         ->middleware('throttle:30,1')
         ->name('time.start');

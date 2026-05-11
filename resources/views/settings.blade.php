@@ -41,8 +41,8 @@
             {{-- ─── Profile Section ─── --}}
             <section id="section-profile" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
                 <div class="px-6 py-5 border-b border-slate-800">
-                    <h2 class="text-lg font-semibold text-white">Profile Information</h2>
-                    <p class="text-sm text-slate-500 mt-1">Update your name and email address. Changing your email will require re-verification.</p>
+                    <h2 class="text-lg font-semibold text-white">Profile and timezone</h2>
+                    <p class="text-sm text-slate-500 mt-1">Update your name, email, and timezone. Changing your email will require re-verification.</p>
                 </div>
 
                 <form method="POST" action="{{ route('settings.profile') }}" class="p-6 space-y-6">
@@ -87,6 +87,17 @@
                         <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
                                class="w-full bg-slate-800/50 border border-slate-700 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder-slate-500">
                         @error('email')
+                            <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="timezone" class="block text-sm font-medium text-slate-300 mb-2">Timezone</label>
+                        <input type="text" name="timezone" id="timezone" value="{{ old('timezone', $user->timezone ?? config('app.timezone')) }}"
+                               placeholder="e.g. America/New_York"
+                               class="w-full bg-slate-800/50 border border-slate-700 text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all placeholder-slate-500">
+                        <p class="mt-1 text-xs text-slate-500">Used for today, charts, and streaks. Must be a valid PHP timezone identifier.</p>
+                        @error('timezone')
                             <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
@@ -259,7 +270,7 @@
                         </div>
                         <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
                             <p class="text-xs text-slate-500 uppercase tracking-wider font-medium mb-1">Focus Hours</p>
-                            <p class="text-sm text-white font-medium">{{ round(($user->timeLogs()->sum('duration') ?? 0) / 60, 1) }}h</p>
+                            <p class="text-sm text-white font-medium">{{ \App\Support\Duration::toDecimalHours((int) ($user->timeLogs()->sum('duration') ?? 0)) }}h</p>
                         </div>
                     </div>
                 </div>

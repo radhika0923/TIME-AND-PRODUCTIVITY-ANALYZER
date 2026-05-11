@@ -162,12 +162,18 @@
                 
                 <h1 class="text-3xl font-semibold tracking-tight text-white mb-2">Time Tracking</h1>
 
+                @if(session('time_log_status'))
+                    <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+                        {{ session('time_log_status') }}
+                    </div>
+                @endif
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"
                      x-data="timerApp({
                         initialSeconds: {{ (int) $runningDuration }},
                         initialRunning: {{ $activeSession ? 'true' : 'false' }},
                         initialTaskName: @json($activeSession['task_name'] ?? ''),
-                        totalTodayMinutes: {{ (int) $totalTimeToday }},
+                        totalTodaySeconds: {{ (int) $totalTimeTodaySeconds }},
                         urlStart: @json(route('time.start')),
                         urlStop: @json(route('time.stop'))
                      })"
@@ -195,6 +201,16 @@
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </div>
                                 </div>
+                                @if($recentTasksForChips->isNotEmpty())
+                                    <p class="text-xs text-slate-500 text-center mt-3 mb-1">Recent tasks</p>
+                                    <div class="flex flex-wrap justify-center gap-2">
+                                        @foreach($recentTasksForChips as $rt)
+                                            <button type="button" @click="selectedTask = '{{ $rt->id }}'"
+                                                    class="text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500/50 hover:text-indigo-300 transition-colors max-w-[200px] truncate"
+                                                    title="{{ $rt->title }}">{{ \Illuminate\Support\Str::limit($rt->title, 28) }}</button>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Current Task Label (Only show when running) -->
@@ -214,7 +230,7 @@
                                 <span role="timer" aria-live="polite" aria-atomic="true" x-text="formattedTime"></span>
                             </div>
                             <p class="text-xs text-slate-500 text-center max-w-md mb-6">
-                                Only sessions of <strong class="text-slate-400">1 minute or longer</strong> are saved. Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-[10px]">Space</kbd> outside inputs to start or stop.
+                                Only sessions of <strong class="text-slate-400">60 seconds or longer</strong> are saved (stored to the second). Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-[10px]">Space</kbd> outside inputs to start or stop.
                             </p>
 
                             <!-- Action Buttons -->
@@ -256,7 +272,7 @@
                                 <span x-text="formattedTodayTotal"></span>
                             </div>
                             <p x-show="isRunning" x-cloak class="text-[11px] text-indigo-400/90 mt-1">Includes this session (estimate)</p>
-                            <div x-show="totalTodayMinutes > 0 || (isRunning && seconds >= 60)" x-cloak class="text-xs text-indigo-400 flex items-center justify-center gap-1 mt-2">
+                            <div x-show="totalTodaySeconds > 0 || (isRunning && seconds >= 60)" x-cloak class="text-xs text-indigo-400 flex items-center justify-center gap-1 mt-2">
                                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 Productive day!
                             </div>
@@ -275,10 +291,40 @@
                 </div>
 
                 <!-- History Table -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-sm overflow-hidden mt-8">
-                    <div class="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-sm overflow-hidden mt-8" x-data="editSessionModal()">
+                    <div class="px-6 py-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <h2 class="text-lg font-semibold text-white">Recent Sessions</h2>
+                        <a href="{{ route('time.export', array_filter($filters ?? [])) }}"
+                           class="inline-flex items-center justify-center text-sm font-medium text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 rounded-xl px-4 py-2 transition-colors">
+                            Export CSV
+                        </a>
                     </div>
+
+                    <form method="get" action="{{ route('time.index') }}" class="px-6 py-4 border-b border-slate-800 flex flex-col lg:flex-row lg:items-end gap-4 flex-wrap">
+                        <div>
+                            <label for="filter_from" class="block text-xs font-medium text-slate-500 mb-1">From</label>
+                            <input type="date" id="filter_from" name="from" value="{{ $filters['from'] ?? '' }}"
+                                   class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="filter_to" class="block text-xs font-medium text-slate-500 mb-1">To</label>
+                            <input type="date" id="filter_to" name="to" value="{{ $filters['to'] ?? '' }}"
+                                   class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div class="min-w-[200px]">
+                            <label for="filter_task" class="block text-xs font-medium text-slate-500 mb-1">Task</label>
+                            <select id="filter_task" name="task_id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                <option value="">All tasks</option>
+                                @foreach($filterTasks as $task)
+                                    <option value="{{ $task->id }}" @selected(($filters['task_id'] ?? null) == $task->id)>{{ $task->title }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">Apply</button>
+                            <a href="{{ route('time.index') }}" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Reset</a>
+                        </div>
+                    </form>
                     
                     @if($logs->total() === 0)
                         <div class="p-12 text-center">
@@ -296,6 +342,7 @@
                                         <th class="px-6 py-4 font-medium">Task / Description</th>
                                         <th class="px-6 py-4 font-medium">Date</th>
                                         <th class="px-6 py-4 font-medium text-right">Duration</th>
+                                        <th class="px-6 py-4 font-medium text-right w-40">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-800/60">
@@ -313,7 +360,17 @@
                                                 {{ $log->created_at->format('M d, Y • h:i A') }}
                                             </td>
                                             <td class="px-6 py-4 text-sm text-right font-medium text-slate-300 font-mono">
-                                                {{ floor($log->duration / 60) }}h {{ $log->duration % 60 }}m
+                                                {{ \App\Support\Duration::format($log->duration) }}
+                                            </td>
+                                            <td class="px-6 py-4 text-right text-sm space-x-2 whitespace-nowrap">
+                                                <button type="button"
+                                                        class="text-indigo-400 hover:text-indigo-300 font-medium"
+                                                        @click="openEdit(@js(route('time-logs.update', $log)), @js((int) $log->duration), @js($log->task_id))">Edit</button>
+                                                <form method="POST" action="{{ route('time-logs.destroy', $log) }}" class="inline" onsubmit="return confirm('Delete this session?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-rose-400 hover:text-rose-300 font-medium">Delete</button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -338,6 +395,35 @@
                             </div>
                         @endif
                     @endif
+
+                    <div x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @keydown.escape.window="close()" role="dialog" aria-modal="true">
+                        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl" @click.away="close()">
+                            <h3 class="text-lg font-semibold text-white mb-4">Edit session</h3>
+                            <form method="POST" x-bind:action="updateUrl" class="space-y-4">
+                                @csrf
+                                @method('PATCH')
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1">Duration (seconds)</label>
+                                    <input type="number" name="duration" x-model="duration" min="60" step="1" required
+                                           class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                    <p class="text-[11px] text-slate-500 mt-1">Minimum 60 seconds.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1">Task</label>
+                                    <select name="task_id" x-model="taskId" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">No specific task</option>
+                                        @foreach($editTasks as $et)
+                                            <option value="{{ $et->id }}">{{ $et->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="flex justify-end gap-2 pt-2">
+                                    <button type="button" @click="close()" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+                                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -347,11 +433,27 @@
     <!-- Alpine Timer Component Logic -->
     <script>
         document.addEventListener('alpine:init', () => {
+            Alpine.data('editSessionModal', () => ({
+                open: false,
+                updateUrl: '',
+                duration: 60,
+                taskId: '',
+                openEdit(url, duration, taskId) {
+                    this.updateUrl = url;
+                    this.duration = duration;
+                    this.taskId = taskId === null || taskId === undefined ? '' : String(taskId);
+                    this.open = true;
+                },
+                close() {
+                    this.open = false;
+                },
+            }));
+
             Alpine.data('timerApp', (config) => ({
                 seconds: Number(config.initialSeconds) || 0,
                 isRunning: Boolean(config.initialRunning),
                 activeTaskName: config.initialTaskName || '',
-                totalTodayMinutes: Number(config.totalTodayMinutes) || 0,
+                totalTodaySeconds: Number(config.totalTodaySeconds) || 0,
                 urlStart: config.urlStart,
                 urlStop: config.urlStop,
                 selectedTask: '',
@@ -370,11 +472,14 @@
                 },
 
                 get formattedTodayTotal() {
-                    const extra = this.isRunning ? Math.floor(this.seconds / 60) : 0;
-                    const m = this.totalTodayMinutes + extra;
-                    const h = Math.floor(m / 60);
-                    const min = m % 60;
-                    return `${h}h ${min}m`;
+                    const extra = this.isRunning ? this.seconds : 0;
+                    const s = this.totalTodaySeconds + extra;
+                    const h = Math.floor(s / 3600);
+                    const m = Math.floor((s % 3600) / 60);
+                    const rem = s % 60;
+                    if (h > 0) return `${h}h ${m}m`;
+                    if (m > 0) return rem > 0 ? `${m}m ${rem}s` : `${m}m`;
+                    return `${rem}s`;
                 },
 
                 init() {
@@ -469,6 +574,7 @@
 
                 async stopTimer() {
                     if (!this.isRunning || this.busyStop) return;
+                    if (!window.confirm('Stop and save this focus session?')) return;
                     this.busyStop = true;
                     try {
                         const response = await fetch(this.urlStop, {

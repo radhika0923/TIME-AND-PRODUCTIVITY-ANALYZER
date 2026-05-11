@@ -61,12 +61,15 @@ class TimeTrackingTest extends TestCase
         $this->actingAs($user)->postJson(route('time.start'), [])->assertOk();
 
         Carbon::setTestNow('2026-01-01 12:02:30');
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->postJson(route('time.stop'))
             ->assertOk()
             ->assertJson(['logged' => true]);
 
+        $this->assertGreaterThanOrEqual(120, $response->json('duration_seconds'));
+
         $this->assertDatabaseCount('time_logs', 1);
+        $this->assertGreaterThanOrEqual(120, (int) $user->fresh()->timeLogs()->latest()->first()->duration);
 
         Carbon::setTestNow();
     }

@@ -5,22 +5,56 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\TimeLog;
 use App\Models\User;
+use App\Support\UserTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class TimeTrackingController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user()->load('focusTimerTask');
+        $user = $request->user()->load(['focusTimerTask']);
 
-        $logs = $user->timeLogs()->with('task')->latest()->paginate(15);
+        $filterValidator = Validator::make($request->only(['from', 'to', 'task_id']), [
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+            'task_id' => ['nullable', 'integer', 'exists:tasks,id'],
+        ]);
+
+        $filters = $filterValidator->fails()
+            ? []
+            : array_filter(
+                $filterValidator->validated(),
+                fn ($v) => $v !== null && $v !== ''
+            );
+
+        $logsQuery = $user->timeLogs()->with('task')->latest();
+
+        if (! empty($filters['from'])) {
+            [$fromStart] = UserTime::dayUtcRange($user, $filters['from']);
+            $logsQuery->where('created_at', '>=', $fromStart);
+        }
+        if (! empty($filters['to'])) {
+            [, $toEnd] = UserTime::dayUtcRange($user, $filters['to']);
+            $logsQuery->where('created_at', '<=', $toEnd);
+        }
+        if (! empty($filters['task_id'])) {
+            $owns = Task::where('user_id', $user->id)->whereKey($filters['task_id'])->exists();
+            if ($owns) {
+                $logsQuery->where('task_id', $filters['task_id']);
+            }
+        }
+
+        $logs = $logsQuery->paginate(15)->withQueryString();
+
         $tasks = $user->tasks()->where('status', 'pending')->latest()->get();
+        $filterTasks = $user->tasks()->orderBy('title')->get();
 
-        // Calculate today's summary
-        $todayLogs = $user->timeLogs()->whereDate('created_at', Carbon::today())->get();
-        $totalTimeToday = $todayLogs->sum('duration'); // in minutes
+        [$todayStart, $todayEnd] = UserTime::todayUtcRange($user);
+        $todayLogs = $user->timeLogs()->whereBetween('created_at', [$todayStart, $todayEnd])->get();
+        $totalTimeTodaySeconds = (int) $todayLogs->sum('duration');
         $sessionsToday = $todayLogs->count();
 
         $activeSession = null;
@@ -34,7 +68,35 @@ class TimeTrackingController extends Controller
             $runningDuration = now()->diffInSeconds($user->focus_timer_started_at);
         }
 
-        return view('time-tracking', compact('logs', 'tasks', 'totalTimeToday', 'sessionsToday', 'activeSession', 'runningDuration'));
+        $recentTaskIds = $user->timeLogs()
+            ->whereNotNull('task_id')
+            ->latest()
+            ->limit(40)
+            ->pluck('task_id')
+            ->unique()
+            ->values()
+            ->take(8)
+            ->all();
+
+        $recentTasksForChips = collect($recentTaskIds)
+            ->map(fn ($id) => Task::query()->where('user_id', $user->id)->whereKey($id)->first())
+            ->filter()
+            ->values();
+
+        $editTasks = $user->tasks()->orderBy('title')->get();
+
+        return view('time-tracking', compact(
+            'logs',
+            'tasks',
+            'filterTasks',
+            'editTasks',
+            'totalTimeTodaySeconds',
+            'sessionsToday',
+            'activeSession',
+            'runningDuration',
+            'filters',
+            'recentTasksForChips'
+        ));
     }
 
     public function start(Request $request)
@@ -87,14 +149,14 @@ class TimeTrackingController extends Controller
 
             $startTime = $user->focus_timer_started_at;
             $taskId = $user->focus_timer_task_id;
-            $durationInMinutes = max(0, (int) round($startTime->diffInMinutes(now())));
+            $durationSeconds = max(0, (int) $startTime->diffInSeconds(now()));
 
-            $logged = $durationInMinutes >= 1;
+            $logged = $durationSeconds >= 60;
             if ($logged) {
                 TimeLog::create([
                     'user_id' => $user->id,
                     'task_id' => $taskId,
-                    'duration' => $durationInMinutes,
+                    'duration' => $durationSeconds,
                 ]);
             }
 
@@ -109,7 +171,7 @@ class TimeTrackingController extends Controller
                     ? 'Timer stopped and session saved.'
                     : 'Session was under 1 minute and was not saved.',
                 'logged' => $logged,
-                'duration' => $durationInMinutes,
+                'duration_seconds' => $durationSeconds,
             ]);
         });
     }

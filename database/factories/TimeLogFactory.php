@@ -21,7 +21,7 @@ class TimeLogFactory extends Factory
         return [
             'user_id' => User::factory(),
             'task_id' => Task::factory(),
-            'duration' => $this->faker->numberBetween(15, 480), // 15 minutes to 8 hours
+            'duration' => $this->faker->numberBetween(900, 28800), // seconds: 15 min to 8 h
             'created_at' => $this->faker->dateTimeThisMonth(),
         ];
     }

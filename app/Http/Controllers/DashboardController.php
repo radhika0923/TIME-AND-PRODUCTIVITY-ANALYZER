@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Duration;
+use App\Support\UserTime;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -18,31 +20,29 @@ class DashboardController extends Controller
         $pendingTasks = (clone $tasksQuery)->where('status', 'pending')->count();
         $completionRate = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
 
-        // Calculate total time from time logs (convert minutes to hours)
-        $totalMinutes = $user->timeLogs()->sum('duration') ?? 0;
-        $totalTime = round($totalMinutes / 60, 1);
+        $totalSeconds = (int) $user->timeLogs()->sum('duration');
+        $totalTime = Duration::toDecimalHours($totalSeconds);
 
-        // ── Weekly Productivity Chart (real data) ──
+        $weekOffset = max(0, min(12, (int) $request->query('week', 0)));
+        $tz = UserTime::timezone($user);
+        $weekEndDay = Carbon::now($tz)->startOfDay()->subDays(7 * $weekOffset);
+
         $last7Days = [];
         for ($i = 6; $i >= 0; $i--) {
-            $last7Days[] = Carbon::today()->subDays($i)->format('Y-m-d');
+            $last7Days[] = $weekEndDay->copy()->subDays($i)->format('Y-m-d');
         }
 
-        $weeklyTimeQuery = $user->timeLogs()
-            ->selectRaw('DATE(created_at) as date, SUM(duration) as total')
-            ->where('created_at', '>=', Carbon::today()->subDays(6))
-            ->groupBy('date')
-            ->pluck('total', 'date')
-            ->toArray();
+        $chartData = [];
+        foreach ($last7Days as $date) {
+            [$ds, $de] = UserTime::dayUtcRange($user, $date);
+            $daySeconds = (int) $user->timeLogs()->whereBetween('created_at', [$ds, $de])->sum('duration');
+            $chartData[] = round($daySeconds / 3600, 2);
+        }
 
-        $chartLabels = array_map(fn($d) => Carbon::parse($d)->format('D'), $last7Days);
-        $chartData = array_map(fn($d) => isset($weeklyTimeQuery[$d]) ? round($weeklyTimeQuery[$d] / 60, 2) : 0, $last7Days);
+        $chartLabels = array_map(fn ($d) => Carbon::parse($d, $tz)->format('D'), $last7Days);
 
-        // ── Recent Activity (real data — last 5 events) ──
-        // Merge recent tasks (created/completed) and time logs into one timeline
         $recentActivities = collect();
 
-        // Recent tasks
         $recentTaskItems = (clone $tasksQuery)->latest()->take(5)->get();
         foreach ($recentTaskItems as $task) {
             $isCompleted = $task->status === 'completed';
@@ -54,7 +54,6 @@ class DashboardController extends Controller
             ]);
         }
 
-        // Recent time logs
         $recentTimeLogs = $user->timeLogs()->with('task')->latest()->take(5)->get();
         foreach ($recentTimeLogs as $log) {
             $recentActivities->push([
@@ -62,42 +61,42 @@ class DashboardController extends Controller
                 'title' => $log->task?->title ?? 'Untitled Task',
                 'time' => $log->created_at,
                 'time_human' => $log->created_at?->diffForHumans() ?? 'Just now',
-                'duration' => $log->duration,
+                'duration_label' => Duration::format($log->duration),
             ]);
         }
 
-        // Sort by time descending, take 4
         $recentActivities = $recentActivities
             ->sortByDesc('time')
             ->take(4)
             ->values()
             ->all();
 
-        // ── Top Tasks by Time Spent (for progress bars) ──
-        // Fetch all tasks with their time sums, then filter/sort in PHP (SQLite-compatible)
         $topTasksByTime = $user->tasks()
             ->withSum('timeLogs', 'duration')
             ->get()
-            ->filter(fn($t) => ($t->time_logs_sum_duration ?? 0) > 0)
+            ->filter(fn ($t) => ($t->time_logs_sum_duration ?? 0) > 0)
             ->sortByDesc('time_logs_sum_duration')
             ->take(3);
 
         $maxTimeSpent = $topTasksByTime->max('time_logs_sum_duration') ?: 1;
         $topTaskProgress = $topTasksByTime->map(function ($task) use ($maxTimeSpent) {
-            $minutes = $task->time_logs_sum_duration ?? 0;
+            $seconds = (int) ($task->time_logs_sum_duration ?? 0);
+
             return [
                 'title' => Str::limit($task->title, 25),
-                'percentage' => (int) round(($minutes / $maxTimeSpent) * 100),
-                'hours' => round($minutes / 60, 1),
+                'percentage' => (int) round(($seconds / $maxTimeSpent) * 100),
+                'hours' => Duration::toDecimalHours($seconds),
             ];
         })->all();
 
         $focusInsight = match (true) {
-            $totalMinutes < 1 => 'Start a focus session from Time Tracking to populate your weekly chart and recent activity.',
+            $totalSeconds < 60 => 'Start a focus session from Time Tracking to populate your weekly chart and recent activity.',
             $pendingTasks > 0 && $completedTasks > 0 => "You have {$pendingTasks} pending task".($pendingTasks === 1 ? '' : 's')." and {$completedTasks} completed—short focus blocks help move pending work forward.",
             $pendingTasks > 0 => "You have {$pendingTasks} pending task".($pendingTasks === 1 ? '' : 's').'. Try pairing the next task with a timed focus session.',
             default => "You've logged {$totalTime} total hours of focus time. Open Analytics to see trends over time.",
         };
+
+        $chartWeekLabel = $weekOffset === 0 ? 'This week' : ($weekOffset === 1 ? 'Last week' : $weekOffset.' weeks ago');
 
         return view('dashboard', [
             'totalTasks' => $totalTasks,
@@ -110,6 +109,8 @@ class DashboardController extends Controller
             'recentActivities' => $recentActivities,
             'topTaskProgress' => $topTaskProgress,
             'focusInsight' => $focusInsight,
+            'weekOffset' => $weekOffset,
+            'chartWeekLabel' => $chartWeekLabel,
         ]);
     }
 }

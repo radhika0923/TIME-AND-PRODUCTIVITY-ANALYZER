@@ -27,14 +27,22 @@ class SettingsController extends Controller
     {
         $user = $request->user();
 
+        if ($request->input('timezone') === '') {
+            $request->merge(['timezone' => null]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'timezone' => ['nullable', 'string', 'max:64', 'timezone'],
         ]);
 
         $emailChanged = $user->email !== $validated['email'];
 
-        $user->fill($validated);
+        $user->fill(\Illuminate\Support\Arr::only($validated, ['name', 'email']));
+        if (array_key_exists('timezone', $validated)) {
+            $user->timezone = $validated['timezone'] ?: null;
+        }
 
         // If the email changed, reset verification
         if ($emailChanged) {
