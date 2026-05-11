@@ -58,7 +58,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     Reminders
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
+                <a href="{{ route('settings') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Settings
                 </a>
@@ -338,9 +338,32 @@
                 },
 
                 startTick() {
+                    if (this.timerInterval) {
+                        clearInterval(this.timerInterval);
+                        this.timerInterval = null;
+                    }
                     this.timerInterval = setInterval(() => {
                         this.seconds++;
                     }, 1000);
+                },
+
+                stopTick() {
+                    if (this.timerInterval) {
+                        clearInterval(this.timerInterval);
+                        this.timerInterval = null;
+                    }
+                },
+
+                async parseJsonSafely(response) {
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.toLowerCase().includes('application/json')) {
+                        return null;
+                    }
+                    try {
+                        return await response.json();
+                    } catch {
+                        return null;
+                    }
                 },
 
                 async startTimer() {
@@ -357,18 +380,19 @@
                             body: JSON.stringify({ task_id: this.selectedTask || null })
                         });
 
-                        const data = await response.json();
+                        const data = await this.parseJsonSafely(response);
 
                         if (response.ok) {
                             this.isRunning = true;
-                            this.activeTaskName = data.data.task_name;
+                            this.seconds = 0;
+                            this.activeTaskName = data?.data?.task_name || this.activeTaskName || 'Uncategorized';
                             this.startTick();
                             this.showMessage('Timer started successfully.', false);
                         } else {
-                            this.showMessage(data.error || 'Failed to start timer.', true);
+                            this.showMessage(data?.error || 'Failed to start timer.', true);
                         }
                     } catch (error) {
-                        this.showMessage('Network error occurred.', true);
+                        this.showMessage('Request failed. Please try again.', true);
                     }
                 },
 
@@ -385,11 +409,11 @@
                             }
                         });
 
-                        const data = await response.json();
+                        const data = await this.parseJsonSafely(response);
 
                         if (response.ok) {
                             this.isRunning = false;
-                            clearInterval(this.timerInterval);
+                            this.stopTick();
                             this.seconds = 0;
                             this.selectedTask = '';
                             this.activeTaskName = '';
@@ -397,10 +421,10 @@
                             // Reload page to update history table
                             window.location.reload();
                         } else {
-                            this.showMessage(data.error || 'Failed to stop timer.', true);
+                            this.showMessage(data?.error || 'Failed to stop timer.', true);
                         }
                     } catch (error) {
-                        this.showMessage('Network error occurred.', true);
+                        this.showMessage('Request failed. Please try again.', true);
                     }
                 },
 
