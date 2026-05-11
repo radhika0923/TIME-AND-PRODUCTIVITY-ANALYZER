@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TimeTrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -56,11 +58,20 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-    Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggleStatus'])->name('tasks.toggle');
+    Route::resource('tasks', TaskController::class);
+    Route::patch('/tasks/{id}/complete', [TaskController::class, 'markComplete'])->name('tasks.complete');
+
+    // Time Tracking Routes
+    Route::get('/time-tracking', [TimeTrackingController::class, 'index'])->name('time.index');
+    Route::post('/time/start', [TimeTrackingController::class, 'start'])->name('time.start');
+    Route::post('/time/stop', [TimeTrackingController::class, 'stop'])->name('time.stop');
+
+    // Analytics Route
+    Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
+
+    // Reminder Routes
+    Route::resource('reminders', ReminderController::class)->except(['create', 'edit', 'show', 'update']);
+    Route::patch('/reminders/{id}/read', [ReminderController::class, 'markAsRead'])->name('reminders.read');
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->middleware('guest')->name('login.form');

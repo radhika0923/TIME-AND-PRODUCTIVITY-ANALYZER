@@ -17,6 +17,10 @@ class DashboardController extends Controller
         $pendingTasks = (clone $tasksQuery)->where('status', 'pending')->count();
         $completionRate = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
 
+        // Calculate total time from time logs (convert minutes to hours)
+        $totalMinutes = $user->timeLogs()->sum('duration') ?? 0;
+        $totalTime = round($totalMinutes / 60, 1);
+
         $recentTasks = (clone $tasksQuery)
             ->latest()
             ->take(4)
@@ -42,6 +46,7 @@ class DashboardController extends Controller
             'completedTasks' => $completedTasks,
             'pendingTasks' => $pendingTasks,
             'completionRate' => $completionRate,
+            'totalTime' => $totalTime,
             'recentTasks' => $recentTasks,
         ]);
     }
