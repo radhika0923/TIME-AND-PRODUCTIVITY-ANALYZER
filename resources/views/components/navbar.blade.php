@@ -80,8 +80,8 @@
                  x-transition:leave-start="transform opacity-100 scale-100"
                  x-transition:leave-end="transform opacity-0 scale-95"
                  class="absolute right-0 mt-3 w-48 bg-slate-800 rounded-2xl shadow-xl shadow-black/50 border border-slate-700 py-2 z-50">
-                <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Profile</a>
-                <a href="#" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Billing</a>
+                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Profile</a>
+                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">Settings</a>
                 <div class="h-px bg-slate-700 my-2"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

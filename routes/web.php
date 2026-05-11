@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TimeTrackingController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Reminder Routes
     Route::resource('reminders', ReminderController::class)->except(['create', 'edit', 'show', 'update']);
     Route::patch('/reminders/{id}/read', [ReminderController::class, 'markAsRead'])->name('reminders.read');
+
+    // Settings Routes
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('settings.destroy');
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->middleware('guest')->name('login.form');
