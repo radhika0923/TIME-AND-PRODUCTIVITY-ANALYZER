@@ -1,59 +1,196 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Time & Productivity Analyzer
+Track tasks, focus sessions, and personal productivity metrics from one clean, developer-first workspace.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?logo=php&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## About Laravel
+## Overview
+Time & Productivity Analyzer is a web platform for people who want a practical way to plan work and measure focus quality.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+It solves the common gap between task management and time tracking by connecting both in one workflow: create tasks, run focus sessions, and view analytics that show what is actually getting done.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Target users include students, freelancers, developers, and small teams who need personal productivity visibility without heavyweight project-management overhead.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The platform's core purpose is to help users convert planned work into measurable output through daily tracking, reminders, and performance insights.
 
-## Learning Laravel
+## Features
+- Secure authentication with email verification workflow
+- Task lifecycle management with completion toggles
+- Category-based task organization with color labels
+- Focus timer with active session state and task linking
+- Time log editing, deletion, and CSV export
+- Analytics dashboard with productivity score, streaks, and weekly trend data
+- Reminder management with upcoming, missed, and completed states
+- User settings for profile, password, and timezone preferences
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Tech Stack
+| Layer | Technologies |
+| --- | --- |
+| Frontend | Blade templates, Tailwind CSS 4, Vite 7, Axios |
+| Backend | Laravel 12, PHP 8.2, Eloquent ORM, Form Request validation |
+| Database | Relational DB via Laravel migrations (SQLite/MySQL compatible) |
+| Authentication | Session auth, hashed passwords, email verification, auth middleware |
+| APIs / Interfaces | Web routes + JSON endpoints for timer start/stop and session actions |
+| Tooling | Composer, NPM, Laravel Pint, PHPUnit, Faker, Concurrency script via `concurrently` |
+| Deployment | Production-ready for VPS/Forge/Docker or cloud PHP runtimes |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<!-- ## UI Preview
+Add screenshots or GIFs below.
 
-## Laravel Sponsors
+![Dashboard Preview](public/Images/dashboard-preview.png)
+![Time Tracking Preview](public/Images/time-tracking-preview.gif)
+![Analytics Preview](public/Images/analytics-preview.png)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+> Replace these placeholders with actual captures from your app UI. -->
 
-### Premium Partners
+## System Architecture / Workflow
+1. A user registers and verifies email before accessing protected pages.
+2. Authenticated users create tasks, optionally group them by category, and set priorities in their workflow.
+3. The focus timer starts a session tied to a task (or uncategorized), storing active state on the user profile.
+4. Stopping the timer writes a time log (minimum duration rule applied) and clears active state.
+5. Time logs feed the analytics layer for weekly focus time, completion trends, productivity score, and streak calculations.
+6. Reminders help users act on planned work and track read/unread status over time.
+7. Settings manage profile identity, password security, and timezone-aware reporting behavior.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Installation & Setup
+### 1) Clone the repository
+```bash
+git clone https://github.com/your-username/time-and-productivity-analyzer.git
+cd time-and-productivity-analyzer
+```
 
+### 2) Install dependencies
+```bash
+composer install
+npm install
+```
+
+### 3) Environment setup
+```bash
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+```
+
+### 4) Run backend + frontend
+```bash
+composer run dev
+```
+
+### 5) Production build
+```bash
+npm run build
+```
+
+### Optional helper (one-shot project bootstrap)
+```bash
+composer run setup
+```
+
+## Environment Variables
+Use this as a baseline `.env` configuration.
+
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `APP_NAME` | `"Time & Productivity Analyzer"` | Application display name |
+| `APP_ENV` | `local` | Runtime environment |
+| `APP_KEY` | `base64:...` | Laravel encryption key |
+| `APP_DEBUG` | `true` | Debug mode |
+| `APP_URL` | `http://127.0.0.1:8000` | Base URL |
+| `DB_CONNECTION` | `sqlite` | Database driver |
+| `DB_DATABASE` | `database/database.sqlite` | Database path/name |
+| `SESSION_DRIVER` | `database` | Session persistence driver |
+| `QUEUE_CONNECTION` | `database` | Queue backend |
+| `MAIL_MAILER` | `smtp` | Mail transport |
+| `MAIL_HOST` | `smtp.mailtrap.io` | SMTP host |
+| `MAIL_PORT` | `2525` | SMTP port |
+| `MAIL_USERNAME` | `your_mail_user` | SMTP username |
+| `MAIL_PASSWORD` | `your_mail_password` | SMTP password |
+| `MAIL_FROM_ADDRESS` | `noreply@example.com` | Sender address |
+
+## Folder Structure
+| Directory | Description |
+| --- | --- |
+| `app/Http/Controllers` | Request handling for auth, tasks, reminders, settings, analytics, and time tracking |
+| `app/Models` | Core domain entities (`User`, `Task`, `TimeLog`, `Reminder`, `Category`) |
+| `app/Support` | Shared utility classes for durations and timezone/user-time logic |
+| `database/migrations` | Database schema evolution and feature-specific table changes |
+| `resources/views` | Blade views for dashboard, analytics, auth pages, reminders, and settings |
+| `resources/js` | Frontend JavaScript entry points and app scripts |
+| `resources/css` | Global styles and Tailwind integration |
+| `routes` | Route definitions for web app flows |
+| `tests` | Feature and unit test coverage |
+
+## API Endpoints
+Primary routes are server-rendered web endpoints, with selected JSON interactions for timer controls.
+
+| Method | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| `POST` | `/time/start` | Yes (`auth`,`verified`) | Starts focus timer for optional task |
+| `POST` | `/time/stop` | Yes (`auth`,`verified`) | Stops timer and stores session if valid |
+| `PATCH` | `/time-logs/{time_log}` | Yes (`auth`,`verified`) | Updates duration/task mapping for a time log |
+| `DELETE` | `/time-logs/{time_log}` | Yes (`auth`,`verified`) | Deletes a time log |
+| `GET` | `/time-tracking/export` | Yes (`auth`,`verified`) | Exports logs as CSV within date range |
+| `PATCH` | `/tasks/{id}/complete` | Yes (`auth`,`verified`) | Toggles task completion state |
+| `PATCH` | `/reminders/{id}/read` | Yes (`auth`,`verified`) | Marks reminder as read |
+
+## Challenges Faced
+- Maintaining timezone-correct analytics for daily/weekly calculations
+- Keeping timer state consistent across refreshes and concurrent requests
+- Preventing unauthorized access to user-owned tasks, logs, and reminders
+- Designing fast exports for large time-log datasets
+- Balancing clean UX with strict validation and security middleware
+
+## Future Enhancements
+- Team workspaces with shared projects and collaborative dashboards
+- Calendar integrations (Google/Outlook) for reminder synchronization
+- Advanced analytics (focus quality score, burnup velocity, anomaly detection)
+- REST/GraphQL API for mobile clients
+- Background job-based report generation and scheduled insights
+
+## Performance / Security Features
+- Auth and verified-email middleware gates for protected routes
+- Authorization policies for time-log update/delete/export actions
+- Input validation on all critical write operations
+- Database transactions for atomic timer start/stop logic
+- Query filtering/pagination for scalable time-log browsing
+- Password hashing and secure session regeneration on login/logout
+
+## Deployment
+Typical production flow:
+
+1. Provision server/runtime (Ubuntu + Nginx + PHP-FPM + MySQL/SQLite, or Laravel Forge equivalent).
+2. Configure environment variables and secrets in `.env`.
+3. Run migrations and optimized build commands.
+4. Serve `public/` as web root and enable HTTPS.
+5. Configure queue worker/process monitor for background jobs.
+
+Example release commands:
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+npm ci
+npm run build
+```
+<!-- 
 ## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feat/your-feature`.
+3. Commit with clear messages and focused scope.
+4. Run tests and formatting checks before opening a PR.
+5. Submit a pull request with context, screenshots, and testing notes.
 
 ## License
+This project is licensed under the MIT License.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Author
+**Your Name**
+
+- GitHub: https://github.com/your-username
+- LinkedIn: https://linkedin.com/in/your-profile
+- Portfolio: https://your-portfolio.dev -->
