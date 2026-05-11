@@ -191,6 +191,24 @@
                     </a>
                 </div>
 
+                <!-- Category Filter Pills -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Categories:</span>
+                    <a href="{{ route('tasks.index', array_merge(request()->except('category'), [])) }}" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {{ !request()->has('category') ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 bg-slate-800/50 border border-slate-700/50 hover:border-slate-600' }}">
+                        All
+                    </a>
+                    @foreach($categories as $cat)
+                        <a href="{{ route('tasks.index', array_merge(request()->except('category'), ['category' => $cat->id])) }}" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 {{ request('category') == $cat->id ? 'border border-indigo-500/20 bg-indigo-500/10 text-indigo-400' : 'text-slate-400 bg-slate-800/50 border border-slate-700/50 hover:border-slate-600' }}">
+                            <span class="w-2 h-2 rounded-full" style="background-color: {{ $cat->color }}"></span>
+                            {{ $cat->name }}
+                            <span class="text-slate-600">({{ $cat->tasks_count }})</span>
+                        </a>
+                    @endforeach
+                    <a href="{{ route('tasks.index', array_merge(request()->except('category'), ['category' => 'uncategorized'])) }}" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all {{ request('category') === 'uncategorized' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 bg-slate-800/50 border border-slate-700/50 hover:border-slate-600' }}">
+                        Uncategorized
+                    </a>
+                </div>
+
                 <!-- Tasks List -->
                 @if($tasks->isEmpty())
                     <div class="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-slate-800 rounded-2xl">
@@ -225,7 +243,13 @@
                                         @if($task->description)
                                             <p class="text-sm text-slate-500 line-clamp-2">{{ $task->description }}</p>
                                         @endif
-                                        <div class="flex items-center gap-3 mt-3 text-xs font-medium">
+                                        <div class="flex items-center gap-3 mt-3 text-xs font-medium flex-wrap">
+                                            @if($task->category)
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md" style="background-color: {{ $task->category->color }}15; color: {{ $task->category->color }}; border: 1px solid {{ $task->category->color }}33;">
+                                                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $task->category->color }}"></span>
+                                                    {{ $task->category->name }}
+                                                </span>
+                                            @endif
                                             @if($task->status === 'completed')
                                                 <span class="inline-flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md">
                                                     Completed
@@ -245,7 +269,7 @@
 
                                 <!-- Actions -->
                                 <div class="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity justify-end sm:justify-start">
-                                    <button @click="taskToEdit = { id: {{ $task->id }}, title: '{{ addslashes($task->title) }}', description: '{{ addslashes($task->description) }}' }; editModalOpen = true" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors" title="Edit Task">
+                                    <button @click="taskToEdit = { id: {{ $task->id }}, title: '{{ addslashes($task->title) }}', description: '{{ addslashes($task->description) }}', category_id: '{{ $task->category_id ?? '' }}' }; editModalOpen = true" class="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors" title="Edit Task">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
                                     
@@ -294,7 +318,36 @@
                                     <label for="description" class="block text-sm font-medium text-slate-300 mb-1.5">Description (Optional)</label>
                                     <textarea name="description" id="description" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-600" placeholder="Add any extra details here..."></textarea>
                                 </div>
+
+                                <div>
+                                    <label for="category_id" class="block text-sm font-medium text-slate-300 mb-1.5">Category</label>
+                                    <select name="category_id" id="category_id" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                                        <option value="">No Category</option>
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}" style="color: {{ $cat->color }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </form>
+
+                            <!-- Quick Create Category (outside the task form) -->
+                            <div x-data="{ showNewCat: false }" class="border-t border-slate-800 pt-4 mt-5">
+                                <button type="button" @click="showNewCat = !showNewCat" class="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Create new category
+                                </button>
+                                <div x-show="showNewCat" x-cloak x-transition class="mt-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 space-y-3">
+                                    <form method="POST" action="{{ route('categories.store') }}" class="space-y-3">
+                                        @csrf
+                                        <input type="text" name="name" required placeholder="Category name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-all placeholder-slate-600">
+                                        <div class="flex items-center gap-3">
+                                            <label class="text-xs text-slate-400">Color:</label>
+                                            <input type="color" name="color" value="#6366f1" class="w-8 h-8 rounded-lg border border-slate-700 cursor-pointer bg-transparent">
+                                            <button type="submit" class="ml-auto px-3 py-1.5 text-xs font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors">Add</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="px-6 py-4 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/50">
@@ -340,6 +393,16 @@
                                 <div>
                                     <label for="edit_description" class="block text-sm font-medium text-slate-300 mb-1.5">Description (Optional)</label>
                                     <textarea name="description" id="edit_description" x-model="taskToEdit.description" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-slate-600"></textarea>
+                                </div>
+
+                                <div>
+                                    <label for="edit_category_id" class="block text-sm font-medium text-slate-300 mb-1.5">Category</label>
+                                    <select name="category_id" id="edit_category_id" x-model="taskToEdit.category_id" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all">
+                                        <option value="">No Category</option>
+                                        @foreach($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </form>
                         </div>

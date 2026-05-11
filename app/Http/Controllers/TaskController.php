@@ -9,7 +9,7 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->user()->tasks()->latest();
+        $query = $request->user()->tasks()->with('category')->latest();
         
         if ($request->has('filter')) {
             if ($request->filter === 'completed') {
@@ -19,8 +19,19 @@ class TaskController extends Controller
             }
         }
 
+        // Category filter
+        if ($request->filled('category')) {
+            if ($request->category === 'uncategorized') {
+                $query->whereNull('category_id');
+            } else {
+                $query->where('category_id', $request->category);
+            }
+        }
+
         $tasks = $query->get();
-        return view('tasks', compact('tasks'));
+        $categories = $request->user()->categories()->withCount('tasks')->orderBy('name')->get();
+
+        return view('tasks', compact('tasks', 'categories'));
     }
 
     public function store(Request $request)
@@ -28,11 +39,13 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $request->user()->tasks()->create([
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
+            'category_id' => $validated['category_id'] ?? null,
             'status' => 'pending',
         ]);
 
@@ -46,6 +59,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $task->update($validated);

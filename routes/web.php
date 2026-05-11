@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SettingsController;
@@ -61,6 +62,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tasks', TaskController::class);
     Route::patch('/tasks/{id}/complete', [TaskController::class, 'markComplete'])->name('tasks.complete');
+
+    // Category Routes
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Time Tracking Routes
     Route::get('/time-tracking', [TimeTrackingController::class, 'index'])->name('time.index');
