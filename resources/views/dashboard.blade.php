@@ -9,12 +9,14 @@
                         </p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <button class="px-5 py-2.5 text-sm font-medium text-white bg-slate-800 border border-slate-700 rounded-xl hover:bg-slate-700 hover:border-slate-600 transition-all shadow-sm">
+                        <a href="{{ route('time.index') }}" class="px-5 py-2.5 text-sm font-medium text-white bg-slate-800 border border-slate-700 rounded-xl hover:bg-slate-700 hover:border-slate-600 transition-all shadow-sm inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             Start Focus Session
-                        </button>
-                        <button class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-xl hover:bg-indigo-600 shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5">
+                        </a>
+                        <a href="{{ route('tasks.index') }}" class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-xl hover:bg-indigo-600 shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             + Add Task
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -117,20 +119,17 @@
                             </div>
                         </div>
                         <div class="mt-6 space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-slate-400">Design System</span>
-                                <span class="text-white font-medium">100%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5">
-                                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 100%"></div>
-                            </div>
-                            <div class="flex justify-between items-center text-sm pt-2">
-                                <span class="text-slate-400">API Integration</span>
-                                <span class="text-white font-medium">45%</span>
-                            </div>
-                            <div class="w-full bg-slate-800 rounded-full h-1.5">
-                                <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 45%"></div>
-                            </div>
+                            @forelse($topTaskProgress as $taskProg)
+                                <div class="flex justify-between items-center text-sm @if(!$loop->first) pt-2 @endif">
+                                    <span class="text-slate-400">{{ $taskProg['title'] }}</span>
+                                    <span class="text-white font-medium">{{ $taskProg['hours'] }}h</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-1.5">
+                                    <div class="bg-indigo-500 h-1.5 rounded-full transition-all duration-700" style="width: {{ $taskProg['percentage'] }}%"></div>
+                                </div>
+                            @empty
+                                <p class="text-xs text-slate-500 italic">No time tracked on tasks yet</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -142,46 +141,39 @@
                     <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6">
                         <h2 class="text-lg font-semibold text-white mb-6">Recent Activity</h2>
                         <div class="space-y-6">
-                            <!-- Item 1 -->
-                            <div class="flex gap-4">
-                                <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            @forelse($recentActivities as $activity)
+                                <div class="flex gap-4">
+                                    @if($activity['type'] === 'completed')
+                                        <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </div>
+                                    @elseif($activity['type'] === 'focus')
+                                        <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20">
+                                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                    @else
+                                        <div class="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
+                                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                        </div>
+                                    @endif
+                                    <div class="flex-1 {{ !$loop->last ? 'pb-6 border-b border-slate-800/60' : '' }}">
+                                        @if($activity['type'] === 'completed')
+                                            <h4 class="text-sm font-medium text-slate-200">Completed <span class="text-white">'{{ $activity['title'] }}'</span></h4>
+                                        @elseif($activity['type'] === 'focus')
+                                            <h4 class="text-sm font-medium text-slate-200">Focus session on <span class="text-white">'{{ $activity['title'] }}'</span> <span class="text-slate-500">({{ $activity['duration'] ?? 0 }} min)</span></h4>
+                                        @else
+                                            <h4 class="text-sm font-medium text-slate-200">Created task <span class="text-white">'{{ $activity['title'] }}'</span></h4>
+                                        @endif
+                                        <p class="text-xs text-slate-500 mt-1">{{ $activity['time_human'] }}</p>
+                                    </div>
                                 </div>
-                                <div class="flex-1 pb-6 border-b border-slate-800/60">
-                                    <h4 class="text-sm font-medium text-slate-200">Completed <span class="text-white">‘Design Dashboard’</span></h4>
-                                    <p class="text-xs text-slate-500 mt-1">2h ago</p>
+                            @empty
+                                <div class="flex flex-col items-center justify-center py-8 text-center">
+                                    <svg class="w-12 h-12 text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                    <p class="text-sm text-slate-500">No recent activity yet</p>
+                                    <p class="text-xs text-slate-600 mt-1">Create a task or start a focus session to get started</p>
                                 </div>
-                            </div>
-                            <!-- Item 2 -->
-                            <div class="flex gap-4">
-                                <div class="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
-                                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                </div>
-                                <div class="flex-1 pb-6 border-b border-slate-800/60">
-                                    <h4 class="text-sm font-medium text-slate-200">Created task <span class="text-white">‘Setup Authentication’</span></h4>
-                                    <p class="text-xs text-slate-500 mt-1">5h ago</p>
-                                </div>
-                            </div>
-                            <!-- Item 3 -->
-                            <div class="flex gap-4">
-                                <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20">
-                                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div class="flex-1 pb-6 border-b border-slate-800/60">
-                                    <h4 class="text-sm font-medium text-slate-200">Started focus session <span class="text-white">‘Deep Work’</span></h4>
-                                    <p class="text-xs text-slate-500 mt-1">Yesterday</p>
-                                </div>
-                            </div>
-                            <!-- Item 4 -->
-                            <div class="flex gap-4">
-                                <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="text-sm font-medium text-slate-200">Completed <span class="text-white">‘Database Schema’</span></h4>
-                                    <p class="text-xs text-slate-500 mt-1">Yesterday</p>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
 
@@ -225,10 +217,10 @@
                 new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        labels: @json($chartLabels),
                         datasets: [{
                             label: 'Focus Hours',
-                            data: [2.5, 3.8, 5.0, 4.2, 6.1, 2.0, 1.5],
+                            data: @json($chartData),
                             borderColor: '#6366f1', // Indigo-500
                             backgroundColor: gradient,
                             borderWidth: 3,
