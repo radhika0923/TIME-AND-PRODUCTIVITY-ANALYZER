@@ -9,6 +9,9 @@
     @isset($scripts)
         {{ $scripts }}
     @endisset
+    @isset($styles)
+        {{ $styles }}
+    @endisset
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
