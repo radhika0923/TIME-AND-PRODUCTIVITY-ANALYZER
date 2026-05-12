@@ -92,6 +92,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::put('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('settings.destroy');
+
+    // Planner Routes
+    Route::get('/planner', [\App\Http\Controllers\PlannerController::class, 'index'])->name('planner.index');
+    Route::get('/planner/events', [\App\Http\Controllers\PlannerController::class, 'events'])->name('planner.events');
+    Route::patch('/planner/tasks/{id}', [\App\Http\Controllers\PlannerController::class, 'update'])->name('planner.update');
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->middleware('guest')->name('login.form');

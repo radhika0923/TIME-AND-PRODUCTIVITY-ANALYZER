@@ -40,12 +40,18 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
+            'due_date' => 'nullable|date',
+            'is_scheduled' => 'nullable|boolean',
+            'scheduled_duration_minutes' => 'nullable|integer|min:1',
         ]);
 
         $request->user()->tasks()->create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'category_id' => $validated['category_id'] ?? null,
+            'due_date' => $validated['due_date'] ?? null,
+            'is_scheduled' => $validated['is_scheduled'] ?? false,
+            'scheduled_duration_minutes' => $validated['scheduled_duration_minutes'] ?? 60,
             'status' => 'pending',
         ]);
 
@@ -60,6 +66,9 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
+            'due_date' => 'nullable|date',
+            'is_scheduled' => 'nullable|boolean',
+            'scheduled_duration_minutes' => 'nullable|integer|min:1',
         ]);
 
         $task->update($validated);
@@ -79,10 +88,17 @@ class TaskController extends Controller
     {
         $task = Task::where('user_id', $request->user()->id)->findOrFail($id);
         
+        $newStatus = $task->status === 'completed' ? 'pending' : 'completed';
         $task->update([
-            'status' => $task->status === 'completed' ? 'pending' : 'completed'
+            'status' => $newStatus
         ]);
 
-        return redirect()->back()->with('success', 'Task status updated.');
+        $response = redirect()->back()->with('success', 'Task status updated.');
+
+        if ($newStatus === 'completed') {
+            $response->with('confetti', true);
+        }
+
+        return $response;
     }
 }

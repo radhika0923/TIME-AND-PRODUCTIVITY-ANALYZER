@@ -20,6 +20,8 @@ class Task extends Model
         'status',
         'priority',
         'due_date',
+        'is_scheduled',
+        'scheduled_duration_minutes',
     ];
 
     protected function casts(): array

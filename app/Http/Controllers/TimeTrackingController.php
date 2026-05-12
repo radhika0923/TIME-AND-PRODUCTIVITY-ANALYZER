@@ -47,6 +47,28 @@ class TimeTrackingController extends Controller
             }
         }
 
+        if ($request->filled('time_slot')) {
+            $slot = $request->time_slot;
+            $logsQuery->where(function ($q) use ($slot) {
+                // SQLite uses strftime. MySQL uses HOUR(). 
+                // We'll use a more general approach or just handle the current DB.
+                $dbDriver = DB::getDriverName();
+                
+                if ($dbDriver === 'sqlite') {
+                    if ($slot === 'morning') $q->whereRaw("strftime('%H', created_at) BETWEEN '06' AND '11'");
+                    elseif ($slot === 'afternoon') $q->whereRaw("strftime('%H', created_at) BETWEEN '12' AND '17'");
+                    elseif ($slot === 'evening') $q->whereRaw("strftime('%H', created_at) BETWEEN '18' AND '23'");
+                    elseif ($slot === 'night') $q->whereRaw("strftime('%H', created_at) BETWEEN '00' AND '05'");
+                } else {
+                    if ($slot === 'morning') $q->whereRaw('HOUR(created_at) BETWEEN 6 AND 11');
+                    elseif ($slot === 'afternoon') $q->whereRaw('HOUR(created_at) BETWEEN 12 AND 17');
+                    elseif ($slot === 'evening') $q->whereRaw('HOUR(created_at) BETWEEN 18 AND 23');
+                    elseif ($slot === 'night') $q->whereRaw('HOUR(created_at) BETWEEN 0 AND 5');
+                }
+            });
+            $filters['time_slot'] = $slot;
+        }
+
         $logs = $logsQuery->paginate(15)->withQueryString();
 
         $tasks = $user->tasks()->where('status', 'pending')->latest()->get();

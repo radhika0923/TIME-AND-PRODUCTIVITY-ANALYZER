@@ -1,630 +1,469 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Time Tracking - Time & Productivity Analyzer</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        [x-cloak] { display: none !important; }
-        
-        /* Digital font aesthetic for timer */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
-        .font-mono { font-family: 'Roboto Mono', monospace; }
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-200 antialiased selection:bg-indigo-500 selection:text-white" x-data="{ sidebarOpen: false }">
+<x-layouts.app title="Time Tracking - Time & Productivity Analyzer">
+    <x-slot:styles>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&display=swap');
+            .font-mono { font-family: 'Roboto Mono', monospace; }
+        </style>
+    </x-slot:styles>
 
-    <div class="flex h-screen overflow-hidden">
+    <h1 class="text-3xl font-semibold tracking-tight text-white mb-2">Time Tracking</h1>
+
+    @if(session('time_log_status'))
+        <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+            {{ session('time_log_status') }}
+        </div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"
+         x-data="timerApp({
+            initialSeconds: {{ (int) $runningDuration }},
+            initialRunning: {{ $activeSession ? 'true' : 'false' }},
+            initialTaskName: @json($activeSession['task_name'] ?? ''),
+            totalTodaySeconds: {{ (int) $totalTimeTodaySeconds }},
+            urlStart: @json(route('time.start')),
+            urlStop: @json(route('time.stop'))
+         })"
+         @keydown.window="handleGlobalKey($event)">
         
-        <!-- Sidebar -->
-        <aside class="absolute inset-y-0 left-0 z-50 w-64 transform bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0"
-               :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}">
+        <!-- TIMER SECTION (Main Focus) -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
             
-            <div class="flex items-center justify-between h-20 px-6 border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span class="text-lg font-semibold tracking-tight text-white">Analyzer</span>
-                </div>
-                <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
+            <!-- Decorative inner glow based on state -->
+            <div class="absolute inset-0 transition-opacity duration-1000 pointer-events-none" 
+                 :class="isRunning ? (mode === 'pomodoro' ? 'bg-rose-500/5 opacity-100' : 'bg-indigo-500/5 opacity-100') : 'opacity-0'"></div>
 
-            <nav class="p-4 space-y-1 overflow-y-auto">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    Dashboard
-                </a>
-                <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                    Tasks
-                </a>
-                <a href="{{ route('time.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Time Tracking
-                </a>
-                <a href="{{ route('analytics.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
-                    Analytics
-                </a>
-                <a href="{{ route('reminders.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    Reminders
-                </a>
-                <a href="{{ route('settings') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Settings
-                </a>
-            </nav>
-
-            <div class="absolute bottom-0 w-full p-4 border-t border-slate-800">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        Logout
-                    </button>
-                </form>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-            <!-- Ambient Background Glow -->
-            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
-
-            <!-- Top Navbar -->
-            <header class="h-20 px-6 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl z-40 sticky top-0">
-                <div class="flex items-center gap-4">
-                    <button @click="sidebarOpen = true" class="lg:hidden text-slate-400 hover:text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-5">
-                    @php
-                        $unreadReminders = auth()->check() ? auth()->user()->reminders()->where('reminder_time', '<=', now())->where('is_read', false)->orderBy('reminder_time', 'desc')->get() : collect();
-                        $unreadCount = $unreadReminders->count();
-                    @endphp
-                    <div class="relative" x-data="{ notificationsOpen: false }">
-                        <button @click="notificationsOpen = !notificationsOpen" @click.away="notificationsOpen = false" class="relative text-slate-400 hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                            @if($unreadCount > 0)
-                                <span class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 ring-2 ring-slate-900 text-[9px] font-bold text-white">{{ $unreadCount }}</span>
-                            @endif
-                        </button>
-
-                        <div x-show="notificationsOpen" x-cloak
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-3 w-80 bg-slate-800 rounded-2xl shadow-xl shadow-black/50 border border-slate-700 overflow-hidden z-50">
-                            <div class="p-3 border-b border-slate-700 flex justify-between items-center bg-slate-800/80">
-                                <h3 class="text-sm font-semibold text-white">Notifications</h3>
-                                @if($unreadCount > 0)
-                                    <span class="text-xs text-indigo-400">{{ $unreadCount }} unread</span>
-                                @endif
-                            </div>
-                            <div class="max-h-80 overflow-y-auto">
-                                @forelse($unreadReminders as $notification)
-                                    <div class="p-3 border-b border-slate-700 hover:bg-slate-700/50 transition-colors">
-                                        <div class="flex justify-between items-start">
-                                            <p class="text-sm font-medium text-white">{{ $notification->title }}</p>
-                                            <form action="{{ route('reminders.read', $notification->id) }}" method="POST">
-                                                @csrf @method('PATCH')
-                                                <button type="submit" class="text-xs text-indigo-400 hover:text-indigo-300">Mark read</button>
-                                            </form>
-                                        </div>
-                                        <p class="text-xs text-slate-400 mt-1 line-clamp-2">{{ $notification->message }}</p>
-                                        <span class="text-[10px] text-slate-500 mt-2 block">{{ $notification->reminder_time->diffForHumans() }}</span>
-                                    </div>
-                                @empty
-                                    <div class="p-4 text-center text-sm text-slate-500">No new notifications</div>
-                                @endforelse
-                            </div>
-                            <div class="p-2 bg-slate-800/80 border-t border-slate-700 text-center">
-                                <a href="{{ route('reminders.index') }}" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">View all reminders</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" @click.away="open = false" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-sm font-medium text-white shadow-md shadow-indigo-500/20">
-                                {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
-                            </div>
-                            <div class="hidden sm:block text-left">
-                                <p class="text-sm font-medium text-slate-200">{{ auth()->user()->name ?? 'User Name' }}</p>
-                            </div>
-                        </button>
-
-                        <div x-show="open" x-cloak class="absolute right-0 mt-3 w-48 bg-slate-800 rounded-2xl shadow-xl shadow-black/50 border border-slate-700 py-2 z-50">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors">Sign out</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Scrollable View -->
-            <div class="flex-1 overflow-y-auto p-6 lg:p-10 space-y-8 z-10 scroll-smooth">
+            <div class="relative z-10 flex flex-col items-center justify-center h-full min-h-[320px]">
                 
-                <h1 class="text-3xl font-semibold tracking-tight text-white mb-2">Time Tracking</h1>
-
-                @if(session('time_log_status'))
-                    <div class="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-                        {{ session('time_log_status') }}
-                    </div>
-                @endif
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                     x-data="timerApp({
-                        initialSeconds: {{ (int) $runningDuration }},
-                        initialRunning: {{ $activeSession ? 'true' : 'false' }},
-                        initialTaskName: @json($activeSession['task_name'] ?? ''),
-                        totalTodaySeconds: {{ (int) $totalTimeTodaySeconds }},
-                        urlStart: @json(route('time.start')),
-                        urlStop: @json(route('time.stop'))
-                     })"
-                     @keydown.window="handleGlobalKey($event)">
-                    <!-- TIMER SECTION (Main Focus) -->
-                    <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden">
-                        
-                        <!-- Decorative inner glow based on state -->
-                        <div class="absolute inset-0 transition-opacity duration-1000 pointer-events-none" 
-                             :class="isRunning ? 'bg-indigo-500/5 opacity-100' : 'opacity-0'"></div>
-
-                        <div class="relative z-10 flex flex-col items-center justify-center h-full min-h-[320px]">
-                            
-                            <!-- Task Selection (Only show when stopped) -->
-                            <div x-show="!isRunning" x-transition class="w-full max-w-md mx-auto mb-8">
-                                <label class="block text-sm font-medium text-slate-400 mb-2 text-center">What are you working on?</label>
-                                <div class="relative">
-                                    <select x-model="selectedTask" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
-                                        <option value="">No specific task</option>
-                                        @foreach($tasks as $task)
-                                            <option value="{{ $task->id }}">{{ $task->title }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    </div>
-                                </div>
-                                @if($recentTasksForChips->isNotEmpty())
-                                    <p class="text-xs text-slate-500 text-center mt-3 mb-1">Recent tasks</p>
-                                    <div class="flex flex-wrap justify-center gap-2">
-                                        @foreach($recentTasksForChips as $rt)
-                                            <button type="button" @click="selectedTask = '{{ $rt->id }}'"
-                                                    class="text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500/50 hover:text-indigo-300 transition-colors max-w-[200px] truncate"
-                                                    title="{{ $rt->title }}">{{ \Illuminate\Support\Str::limit($rt->title, 28) }}</button>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Current Task Label (Only show when running) -->
-                            <div x-show="isRunning" x-cloak x-transition class="mb-8 flex flex-col items-center gap-2">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                                    <span class="relative flex h-2 w-2">
-                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                                    </span>
-                                    Tracking Active
-                                </span>
-                                <h3 class="text-xl font-medium text-slate-200" x-text="activeTaskName || 'Uncategorized Work'"></h3>
-                            </div>
-
-                            <!-- Digital Display -->
-                            <div class="font-mono text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-white mb-4 text-shadow-glow flex items-center justify-center tabular-nums" style="text-shadow: 0 0 40px rgba(99,102,241,0.2);">
-                                <span role="timer" aria-live="polite" aria-atomic="true" x-text="formattedTime"></span>
-                            </div>
-                            <p class="text-xs text-slate-500 text-center max-w-md mb-6">
-                                Only sessions of <strong class="text-slate-400">60 seconds or longer</strong> are saved (stored to the second). Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-[10px]">Space</kbd> outside inputs to start or stop.
-                            </p>
-
-                            <!-- Action Buttons -->
-                            <div class="flex flex-col sm:flex-row items-center gap-4">
-                                <!-- Start Button -->
-                                <button type="button" x-show="!isRunning" @click="startTimer()"
-                                        :disabled="busyStart"
-                                        :aria-busy="busyStart"
-                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-indigo-500 rounded-full hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
-                                    <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStart"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStart" x-cloak></span>
-                                    <span x-text="busyStart ? 'Starting…' : 'Start Timer'"></span>
-                                </button>
-
-                                <!-- Stop Button -->
-                                <button type="button" x-show="isRunning" x-cloak @click="stopTimer()"
-                                        :disabled="busyStop"
-                                        :aria-busy="busyStop"
-                                        class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-rose-500 rounded-full hover:bg-rose-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 focus:ring-offset-slate-900 hover:shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none">
-                                    <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStop"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
-                                    <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStop" x-cloak></span>
-                                    <span x-text="busyStop ? 'Saving…' : 'Stop & Save'"></span>
-                                </button>
-                            </div>
-                            
-                            <!-- Error/Success Message Area -->
-                            <div x-show="message" x-cloak x-transition class="absolute bottom-6 text-sm font-medium" :class="isError ? 'text-rose-400' : 'text-emerald-400'" x-text="message"></div>
-                        </div>
-                    </div>
-
-                    <!-- Daily Summary (Right Side) -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-8 flex flex-col gap-6 shadow-sm">
-                        <h2 class="text-lg font-semibold text-white border-b border-slate-800 pb-4">Today's Summary</h2>
-                        
-                        <div class="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                            <div class="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-indigo-500/20 blur-2xl rounded-full"></div>
-                            <span class="text-slate-400 text-sm font-medium mb-2">Total Focus Time</span>
-                            <div class="text-4xl font-bold text-white mb-1 font-mono tabular-nums">
-                                <span x-text="formattedTodayTotal"></span>
-                            </div>
-                            <p x-show="isRunning" x-cloak class="text-[11px] text-indigo-400/90 mt-1">Includes this session (estimate)</p>
-                            <div x-show="totalTodaySeconds > 0 || (isRunning && seconds >= 60)" x-cloak class="text-xs text-indigo-400 flex items-center justify-center gap-1 mt-2">
-                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                Productive day!
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 flex items-center justify-between">
-                            <div>
-                                <span class="block text-slate-400 text-sm font-medium mb-1">Sessions</span>
-                                <span class="text-2xl font-bold text-white">{{ $sessionsToday }}</span>
-                            </div>
-                            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Mode Selector (Only show when stopped) -->
+                <div x-show="!isRunning" x-transition class="flex bg-slate-950 p-1 rounded-xl mb-8 border border-slate-800">
+                    <button @click="mode = 'focus'" :class="mode === 'focus' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'" class="px-4 py-2 text-xs font-semibold rounded-lg transition-all">Focus Timer</button>
+                    <button @click="mode = 'pomodoro'" :class="mode === 'pomodoro' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'" class="px-4 py-2 text-xs font-semibold rounded-lg transition-all">Pomodoro</button>
                 </div>
 
-                <!-- History Table -->
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-sm overflow-hidden mt-8" x-data="editSessionModal()">
-                    <div class="px-6 py-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <h2 class="text-lg font-semibold text-white">Recent Sessions</h2>
-                        <a href="{{ route('time.export', array_filter($filters ?? [])) }}"
-                           class="inline-flex items-center justify-center text-sm font-medium text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 rounded-xl px-4 py-2 transition-colors">
-                            Export CSV
-                        </a>
+                <!-- Task Selection (Only show when stopped) -->
+                <div x-show="!isRunning" x-transition class="w-full max-w-md mx-auto mb-8">
+                    <label class="block text-sm font-medium text-slate-400 mb-2 text-center">What are you working on?</label>
+                    <div class="relative">
+                        <select x-model="selectedTask" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+                            <option value="">No specific task</option>
+                            @foreach($tasks as $task)
+                                <option value="{{ $task->id }}">{{ $task->title }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
                     </div>
-
-                    <form method="get" action="{{ route('time.index') }}" class="px-6 py-4 border-b border-slate-800 flex flex-col lg:flex-row lg:items-end gap-4 flex-wrap">
-                        <div>
-                            <label for="filter_from" class="block text-xs font-medium text-slate-500 mb-1">From</label>
-                            <input type="date" id="filter_from" name="from" value="{{ $filters['from'] ?? '' }}"
-                                   class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label for="filter_to" class="block text-xs font-medium text-slate-500 mb-1">To</label>
-                            <input type="date" id="filter_to" name="to" value="{{ $filters['to'] ?? '' }}"
-                                   class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        </div>
-                        <div class="min-w-[200px]">
-                            <label for="filter_task" class="block text-xs font-medium text-slate-500 mb-1">Task</label>
-                            <select id="filter_task" name="task_id" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                <option value="">All tasks</option>
-                                @foreach($filterTasks as $task)
-                                    <option value="{{ $task->id }}" @selected(($filters['task_id'] ?? null) == $task->id)>{{ $task->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">Apply</button>
-                            <a href="{{ route('time.index') }}" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Reset</a>
-                        </div>
-                    </form>
                     
-                    @if($logs->total() === 0)
-                        <div class="p-12 text-center">
-                            <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-500 mb-4 mx-auto">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-slate-300 mb-1">No sessions yet</h3>
-                            <p class="text-sm text-slate-500">Start the timer above to log your first focus session.</p>
-                        </div>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-800/20 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-800">
-                                        <th class="px-6 py-4 font-medium">Task / Description</th>
-                                        <th class="px-6 py-4 font-medium">Date</th>
-                                        <th class="px-6 py-4 font-medium text-right">Duration</th>
-                                        <th class="px-6 py-4 font-medium text-right w-40">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-800/60">
-                                    @foreach($logs as $log)
-                                        <tr class="hover:bg-slate-800/20 transition-colors">
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-2 h-2 rounded-full {{ $log->task ? 'bg-indigo-500' : 'bg-slate-600' }}"></div>
-                                                    <span class="text-sm font-medium text-slate-200">
-                                                        {{ $log->task ? $log->task->title : 'Uncategorized Work' }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm text-slate-400">
-                                                {{ $log->created_at->format('M d, Y • h:i A') }}
-                                            </td>
-                                            <td class="px-6 py-4 text-sm text-right font-medium text-slate-300 font-mono">
-                                                {{ \App\Support\Duration::format($log->duration) }}
-                                            </td>
-                                            <td class="px-6 py-4 text-right text-sm space-x-2 whitespace-nowrap">
-                                                <button type="button"
-                                                        class="text-indigo-400 hover:text-indigo-300 font-medium"
-                                                        @click="openEdit(@js(route('time-logs.update', $log)), @js((int) $log->duration), @js($log->task_id))">Edit</button>
-                                                <form method="POST" action="{{ route('time-logs.destroy', $log) }}" class="inline" onsubmit="return confirm('Delete this session?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-rose-400 hover:text-rose-300 font-medium">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        @if($logs->hasPages())
-                            <div class="px-6 py-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-slate-400">
-                                <p>Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }}</p>
-                                <div class="flex items-center gap-4">
-                                    @if($logs->onFirstPage())
-                                        <span class="opacity-40 cursor-not-allowed">Previous</span>
-                                    @else
-                                        <a href="{{ $logs->previousPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Previous</a>
-                                    @endif
-                                    @if($logs->hasMorePages())
-                                        <a href="{{ $logs->nextPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Next</a>
-                                    @else
-                                        <span class="opacity-40 cursor-not-allowed">Next</span>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                    @endif
-
-                    <div x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @keydown.escape.window="close()" role="dialog" aria-modal="true">
-                        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl" @click.away="close()">
-                            <h3 class="text-lg font-semibold text-white mb-4">Edit session</h3>
-                            <form method="POST" x-bind:action="updateUrl" class="space-y-4">
-                                @csrf
-                                @method('PATCH')
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-500 mb-1">Duration (seconds)</label>
-                                    <input type="number" name="duration" x-model="duration" min="60" step="1" required
-                                           class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                    <p class="text-[11px] text-slate-500 mt-1">Minimum 60 seconds.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-500 mb-1">Task</label>
-                                    <select name="task_id" x-model="taskId" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                        <option value="">No specific task</option>
-                                        @foreach($editTasks as $et)
-                                            <option value="{{ $et->id }}">{{ $et->title }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="flex justify-end gap-2 pt-2">
-                                    <button type="button" @click="close()" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
-                                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">Save</button>
-                                </div>
-                            </form>
-                        </div>
+                    <!-- Pomodoro Duration Presets -->
+                    <div x-show="mode === 'pomodoro'" x-transition class="mt-4 flex flex-wrap justify-center gap-2">
+                        <button type="button" @click="pomoDuration = 25 * 60" :class="pomoDuration === 25*60 ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-slate-700 text-slate-400'" class="text-xs px-3 py-1.5 rounded-lg border transition-all">25m</button>
+                        <button type="button" @click="pomoDuration = 50 * 60" :class="pomoDuration === 50*60 ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-slate-700 text-slate-400'" class="text-xs px-3 py-1.5 rounded-lg border transition-all">50m</button>
+                        <button type="button" @click="pomoDuration = 15 * 60" :class="pomoDuration === 15*60 ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-slate-700 text-slate-400'" class="text-xs px-3 py-1.5 rounded-lg border transition-all">15m (Short)</button>
                     </div>
+
+                    @if($recentTasksForChips->isNotEmpty())
+                        <p class="text-xs text-slate-500 text-center mt-3 mb-1" x-show="mode === 'focus'">Recent tasks</p>
+                        <div class="flex flex-wrap justify-center gap-2" x-show="mode === 'focus'">
+                            @foreach($recentTasksForChips as $rt)
+                                <button type="button" @click="selectedTask = '{{ $rt->id }}'"
+                                        class="text-xs px-3 py-1.5 rounded-full border border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500/50 hover:text-indigo-300 transition-colors max-w-[200px] truncate"
+                                        title="{{ $rt->title }}">{{ \Illuminate\Support\Str::limit($rt->title, 28) }}</button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
 
+                <!-- Current Task Label (Only show when running) -->
+                <div x-show="isRunning" x-cloak x-transition class="mb-8 flex flex-col items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium" :class="mode === 'pomodoro' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="mode === 'pomodoro' ? 'bg-rose-400' : 'bg-indigo-400'"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2" :class="mode === 'pomodoro' ? 'bg-rose-500' : 'bg-indigo-500'"></span>
+                        </span>
+                        <span x-text="mode === 'pomodoro' ? 'Pomodoro Session' : 'Tracking Active'"></span>
+                    </span>
+                    <h3 class="text-xl font-medium text-slate-200" x-text="activeTaskName || 'Uncategorized Work'"></h3>
+                </div>
+
+                <!-- Digital Display -->
+                <div class="font-mono text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-white mb-4 text-shadow-glow flex items-center justify-center tabular-nums" 
+                     :style="mode === 'pomodoro' ? 'text-shadow: 0 0 40px rgba(244,63,94,0.2);' : 'text-shadow: 0 0 40px rgba(99,102,241,0.2);'">
+                    <span role="timer" aria-live="polite" aria-atomic="true" x-text="formattedDisplayTime"></span>
+                </div>
+                
+                <p class="text-xs text-slate-500 text-center max-w-md mb-6">
+                    Only sessions of <strong class="text-slate-400">60 seconds or longer</strong> are saved. Press <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono text-[10px]">Space</kbd> to start/stop.
+                </p>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <button type="button" x-show="!isRunning" @click="startTimer()"
+                            :disabled="busyStart"
+                            class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-indigo-500 rounded-full hover:bg-indigo-400 shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStart"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStart" x-cloak></span>
+                        <span x-text="busyStart ? 'Starting…' : 'Start Timer'"></span>
+                    </button>
+
+                    <button type="button" x-show="isRunning" x-cloak @click="stopTimer()"
+                            :disabled="busyStop"
+                            class="group relative inline-flex items-center justify-center px-8 py-4 font-semibold text-white transition-all duration-200 bg-rose-500 rounded-full hover:bg-rose-400 shadow-lg hover:shadow-rose-500/30 transform hover:-translate-y-1 w-48 disabled:opacity-60">
+                        <svg class="w-6 h-6 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!busyStop"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+                        <span class="inline-block w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" x-show="busyStop" x-cloak></span>
+                        <span x-text="busyStop ? 'Saving…' : 'Stop & Save'"></span>
+                    </button>
+                </div>
+                
+                <div x-show="message" x-cloak x-transition class="absolute bottom-6 text-sm font-medium" :class="isError ? 'text-rose-400' : 'text-emerald-400'" x-text="message"></div>
             </div>
-        </main>
+        </div>
+
+        <!-- Daily Summary (Right Side) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-8 flex flex-col gap-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-white border-b border-slate-800 pb-4">Today's Summary</h2>
+            
+            <div class="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-indigo-500/20 blur-2xl rounded-full"></div>
+                <span class="text-slate-400 text-sm font-medium mb-2">Total Focus Time</span>
+                <div class="text-4xl font-bold text-white mb-1 font-mono tabular-nums">
+                    <span x-text="formattedTodayTotal"></span>
+                </div>
+                <p x-show="isRunning" x-cloak class="text-[11px] text-indigo-400/90 mt-1">Includes this session (estimate)</p>
+            </div>
+
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 flex items-center justify-between">
+                <div>
+                    <span class="block text-slate-400 text-sm font-medium mb-1">Sessions Today</span>
+                    <span class="text-2xl font-bold text-white">{{ $sessionsToday }}</span>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Alpine Timer Component Logic -->
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('editSessionModal', () => ({
-                open: false,
-                updateUrl: '',
-                duration: 60,
-                taskId: '',
-                openEdit(url, duration, taskId) {
-                    this.updateUrl = url;
-                    this.duration = duration;
-                    this.taskId = taskId === null || taskId === undefined ? '' : String(taskId);
-                    this.open = true;
-                },
-                close() {
-                    this.open = false;
-                },
-            }));
+    <!-- History Table -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl shadow-sm overflow-hidden mt-8" x-data="editSessionModal()">
+        <div class="px-6 py-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 class="text-lg font-semibold text-white">Recent Sessions</h2>
+            <a href="{{ route('time.export', array_filter($filters ?? [])) }}"
+               class="inline-flex items-center justify-center text-sm font-medium text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 rounded-xl px-4 py-2 transition-colors">
+                Export CSV
+            </a>
+        </div>
 
-            Alpine.data('timerApp', (config) => ({
-                seconds: Number(config.initialSeconds) || 0,
-                isRunning: Boolean(config.initialRunning),
-                activeTaskName: config.initialTaskName || '',
-                totalTodaySeconds: Number(config.totalTodaySeconds) || 0,
-                urlStart: config.urlStart,
-                urlStop: config.urlStop,
-                selectedTask: '',
-                timerInterval: null,
-                message: '',
-                isError: false,
-                busyStart: false,
-                busyStop: false,
-                csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        <form method="get" action="{{ route('time.index') }}" class="px-6 py-4 border-b border-slate-800 flex flex-col lg:flex-row lg:items-end gap-4 flex-wrap bg-slate-900/50">
+            <div class="flex-1 min-w-[140px]">
+                <label for="filter_from" class="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">From Date</label>
+                <input type="date" id="filter_from" name="from" value="{{ $filters['from'] ?? '' }}"
+                       class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all [color-scheme:dark]">
+            </div>
+            <div class="flex-1 min-w-[140px]">
+                <label for="filter_to" class="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">To Date</label>
+                <input type="date" id="filter_to" name="to" value="{{ $filters['to'] ?? '' }}"
+                       class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all [color-scheme:dark]">
+            </div>
+            <div class="flex-1 min-w-[160px]">
+                <label for="filter_slot" class="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">Time Slot</label>
+                <select id="filter_slot" name="time_slot" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 transition-all">
+                    <option value="">Any Time</option>
+                    <option value="morning" @selected(($filters['time_slot'] ?? null) == 'morning')>Morning (6am-12pm)</option>
+                    <option value="afternoon" @selected(($filters['time_slot'] ?? null) == 'afternoon')>Afternoon (12pm-6pm)</option>
+                    <option value="evening" @selected(($filters['time_slot'] ?? null) == 'evening')>Evening (6pm-12am)</option>
+                    <option value="night" @selected(($filters['time_slot'] ?? null) == 'night')>Night (12am-6am)</option>
+                </select>
+            </div>
+            <div class="flex-[2] min-w-[200px]">
+                <label for="filter_task" class="block text-xs font-medium text-slate-500 mb-1.5 uppercase tracking-wider">Task Filter</label>
+                <select id="filter_task" name="task_id" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:border-indigo-500 transition-all">
+                    <option value="">All tasks</option>
+                    @foreach($filterTasks as $task)
+                        <option value="{{ $task->id }}" @selected(($filters['task_id'] ?? null) == $task->id)>{{ $task->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex items-center gap-2 mb-0.5">
+                <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-xl hover:bg-indigo-600 shadow-lg shadow-indigo-500/20 transition-all">Apply</button>
+                <a href="{{ route('time.index') }}" class="px-4 py-2.5 text-sm font-medium text-slate-400 hover:text-white transition-colors">Reset</a>
+            </div>
+        </form>
+        
+        @if($logs->total() === 0)
+            <div class="p-12 text-center">
+                <div class="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center text-slate-500 mb-4 mx-auto">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-lg font-medium text-slate-300 mb-1">No sessions yet</h3>
+                <p class="text-sm text-slate-500">Start the timer above to log your first focus session.</p>
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/20 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-800">
+                            <th class="px-6 py-4 font-medium">Task / Description</th>
+                            <th class="px-6 py-4 font-medium">Date</th>
+                            <th class="px-6 py-4 font-medium text-right">Duration</th>
+                            <th class="px-6 py-4 font-medium text-right w-40">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        @foreach($logs as $log)
+                            <tr class="hover:bg-slate-800/20 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full {{ $log->task ? 'bg-indigo-500' : 'bg-slate-600' }}"></div>
+                                        <span class="text-sm font-medium text-slate-200">
+                                            {{ $log->task ? $log->task->title : 'Uncategorized Work' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-400">
+                                    {{ $log->created_at->format('M d, Y • h:i A') }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-right font-medium text-slate-300 font-mono">
+                                    {{ \App\Support\Duration::format($log->duration) }}
+                                </td>
+                                <td class="px-6 py-4 text-right text-sm space-x-2 whitespace-nowrap">
+                                    <button type="button"
+                                            class="text-indigo-400 hover:text-indigo-300 font-medium"
+                                            @click="openEdit(@js(route('time-logs.update', $log)), @js((int) $log->duration), @js($log->task_id))">Edit</button>
+                                    <form method="POST" action="{{ route('time-logs.destroy', $log) }}" class="inline" onsubmit="return confirm('Delete this session?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-rose-400 hover:text-rose-300 font-medium">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @if($logs->hasPages())
+                <div class="px-6 py-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-slate-400">
+                    <p>Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }}</p>
+                    <div class="flex items-center gap-4">
+                        @if($logs->onFirstPage())
+                            <span class="opacity-40 cursor-not-allowed">Previous</span>
+                        @else
+                            <a href="{{ $logs->previousPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Previous</a>
+                        @endif
+                        @if($logs->hasMorePages())
+                            <a href="{{ $logs->nextPageUrl() }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Next</a>
+                        @else
+                            <span class="opacity-40 cursor-not-allowed">Next</span>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        @endif
 
-                get formattedTime() {
-                    const hrs = Math.floor(this.seconds / 3600);
-                    const mins = Math.floor((this.seconds % 3600) / 60);
-                    const secs = this.seconds % 60;
-                    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                },
+        <div x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @keydown.escape.window="close()" role="dialog" aria-modal="true">
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl" @click.away="close()">
+                <h3 class="text-lg font-semibold text-white mb-4">Edit session</h3>
+                <form method="POST" x-bind:action="updateUrl" class="space-y-4">
+                    @csrf
+                    @method('PATCH')
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Duration (seconds)</label>
+                        <input type="number" name="duration" x-model="duration" min="60" step="1" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        <p class="text-[11px] text-slate-500 mt-1">Minimum 60 seconds.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Task</label>
+                        <select name="task_id" x-model="taskId" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <option value="">No specific task</option>
+                            @foreach($editTasks as $et)
+                                <option value="{{ $et->id }}">{{ $et->title }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" @click="close()" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-400">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-                get formattedTodayTotal() {
-                    const extra = this.isRunning ? this.seconds : 0;
-                    const s = this.totalTodaySeconds + extra;
-                    const h = Math.floor(s / 3600);
-                    const m = Math.floor((s % 3600) / 60);
-                    const rem = s % 60;
-                    if (h > 0) return `${h}h ${m}m`;
-                    if (m > 0) return rem > 0 ? `${m}m ${rem}s` : `${m}m`;
-                    return `${rem}s`;
-                },
+    <x-slot:scripts>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('editSessionModal', () => ({
+                    open: false,
+                    updateUrl: '',
+                    duration: 60,
+                    taskId: '',
+                    openEdit(url, duration, taskId) {
+                        this.updateUrl = url;
+                        this.duration = duration;
+                        this.taskId = taskId === null || taskId === undefined ? '' : String(taskId);
+                        this.open = true;
+                    },
+                    close() {
+                        this.open = false;
+                    },
+                }));
 
-                init() {
-                    if (this.isRunning) {
-                        this.startTick();
-                    }
-                },
+                Alpine.data('timerApp', (config) => ({
+                    seconds: Number(config.initialSeconds) || 0,
+                    isRunning: Boolean(config.initialRunning),
+                    activeTaskName: config.initialTaskName || '',
+                    totalTodaySeconds: Number(config.totalTodaySeconds) || 0,
+                    urlStart: config.urlStart,
+                    urlStop: config.urlStop,
+                    selectedTask: '',
+                    timerInterval: null,
+                    message: '',
+                    isError: false,
+                    busyStart: false,
+                    busyStop: false,
+                    csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
 
-                handleGlobalKey(e) {
-                    if (e.code !== 'Space') return;
-                    const t = e.target;
-                    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) {
-                        return;
-                    }
-                    e.preventDefault();
-                    if (this.busyStart || this.busyStop) return;
-                    if (this.isRunning) {
-                        this.stopTimer();
-                    } else {
-                        this.startTimer();
-                    }
-                },
+                    // Pomodoro Extensions
+                    mode: 'focus', // 'focus' or 'pomodoro'
+                    pomoDuration: 25 * 60, // Default 25 mins
 
-                startTick() {
-                    if (this.timerInterval) {
-                        clearInterval(this.timerInterval);
-                        this.timerInterval = null;
-                    }
-                    this.timerInterval = setInterval(() => {
-                        this.seconds++;
-                    }, 1000);
-                },
-
-                stopTick() {
-                    if (this.timerInterval) {
-                        clearInterval(this.timerInterval);
-                        this.timerInterval = null;
-                    }
-                },
-
-                async parseJsonSafely(response) {
-                    const contentType = response.headers.get('content-type') || '';
-                    if (!contentType.toLowerCase().includes('application/json')) {
-                        return null;
-                    }
-                    try {
-                        return await response.json();
-                    } catch {
-                        return null;
-                    }
-                },
-
-                async startTimer() {
-                    if (this.isRunning || this.busyStart) return;
-                    this.busyStart = true;
-                    try {
-                        const response = await fetch(this.urlStart, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': this.csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ task_id: this.selectedTask || null })
-                        });
-
-                        if (response.status === 419) {
-                            this.showMessage('Session expired. Refresh the page or sign in again.', true);
-                            return;
+                    get formattedDisplayTime() {
+                        let s = this.seconds;
+                        if (this.mode === 'pomodoro') {
+                            s = Math.max(0, this.pomoDuration - this.seconds);
                         }
+                        const hrs = Math.floor(s / 3600);
+                        const mins = Math.floor((s % 3600) / 60);
+                        const secs = s % 60;
+                        if (hrs > 0) {
+                            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                        }
+                        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    },
 
-                        const data = await this.parseJsonSafely(response);
+                    get formattedTodayTotal() {
+                        const extra = this.isRunning ? this.seconds : 0;
+                        const s = this.totalTodaySeconds + extra;
+                        const h = Math.floor(s / 3600);
+                        const m = Math.floor((s % 3600) / 60);
+                        const rem = s % 60;
+                        if (h > 0) return `${h}h ${m}m`;
+                        if (m > 0) return rem > 0 ? `${m}m ${rem}s` : `${m}m`;
+                        return `${rem}s`;
+                    },
 
-                        if (response.ok) {
-                            this.isRunning = true;
-                            this.seconds = 0;
-                            this.activeTaskName = data?.data?.task_name || this.activeTaskName || 'Uncategorized';
+                    init() {
+                        if (this.isRunning) {
                             this.startTick();
-                            this.showMessage('Timer started successfully.', false);
-                        } else {
-                            const msg = data?.message
-                                ? (typeof data.message === 'string' ? data.message : Object.values(data.message).flat().join(' '))
-                                : (data?.error || 'Failed to start timer.');
-                            this.showMessage(msg, true);
                         }
-                    } catch {
-                        this.showMessage('Request failed. Please try again.', true);
-                    } finally {
-                        this.busyStart = false;
-                    }
-                },
+                    },
 
-                async stopTimer() {
-                    if (!this.isRunning || this.busyStop) return;
-                    if (!window.confirm('Stop and save this focus session?')) return;
-                    this.busyStop = true;
-                    try {
-                        const response = await fetch(this.urlStop, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': this.csrfToken,
-                                'Accept': 'application/json'
+                    handleGlobalKey(e) {
+                        if (e.code !== 'Space') return;
+                        const t = e.target;
+                        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+                        e.preventDefault();
+                        if (this.busyStart || this.busyStop) return;
+                        this.isRunning ? this.stopTimer() : this.startTimer();
+                    },
+
+                    startTick() {
+                        if (this.timerInterval) clearInterval(this.timerInterval);
+                        this.timerInterval = setInterval(() => {
+                            this.seconds++;
+                            if (this.mode === 'pomodoro' && this.seconds >= this.pomoDuration) {
+                                this.onPomodoroComplete();
                             }
-                        });
+                        }, 1000);
+                    },
 
-                        if (response.status === 419) {
-                            this.showMessage('Session expired. Refresh the page or sign in again.', true);
-                            return;
+                    onPomodoroComplete() {
+                        this.stopTick();
+                        // Optional: play sound
+                        if (Notification.permission === 'granted') {
+                            new Notification('Pomodoro Finished!', { body: 'Time for a break!' });
+                        } else if (Notification.permission !== 'denied') {
+                            Notification.requestPermission();
                         }
+                        alert('Pomodoro Finished! Take a break.');
+                        this.stopTimer();
+                    },
 
-                        const data = await this.parseJsonSafely(response);
+                    stopTick() {
+                        if (this.timerInterval) {
+                            clearInterval(this.timerInterval);
+                            this.timerInterval = null;
+                        }
+                    },
 
-                        if (response.ok) {
-                            this.isRunning = false;
-                            this.stopTick();
-                            this.seconds = 0;
-                            this.selectedTask = '';
-                            this.activeTaskName = '';
-
-                            if (data?.logged) {
-                                window.location.reload();
+                    async startTimer() {
+                        if (this.isRunning || this.busyStart) return;
+                        this.busyStart = true;
+                        try {
+                            const response = await fetch(this.urlStart, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': this.csrfToken,
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({ task_id: this.selectedTask || null })
+                            });
+                            const data = await response.json();
+                            if (response.ok) {
+                                this.isRunning = true;
+                                this.seconds = 0;
+                                this.activeTaskName = data?.data?.task_name || 'Uncategorized';
+                                this.startTick();
+                                this.showMessage(this.mode === 'pomodoro' ? 'Pomodoro started.' : 'Timer started.', false);
                             } else {
-                                this.showMessage(data?.message || 'Session was under 1 minute and was not saved.', false);
+                                this.showMessage(data?.message || 'Failed to start.', true);
                             }
-                        } else {
-                            const msg = data?.message
-                                ? (typeof data.message === 'string' ? data.message : Object.values(data.message).flat().join(' '))
-                                : (data?.error || 'Failed to stop timer.');
-                            this.showMessage(msg, true);
+                        } catch {
+                            this.showMessage('Connection error.', true);
+                        } finally {
+                            this.busyStart = false;
                         }
-                    } catch {
-                        this.showMessage('Request failed. Please try again.', true);
-                    } finally {
-                        this.busyStop = false;
-                    }
-                },
+                    },
 
-                showMessage(msg, isErr) {
-                    this.message = msg;
-                    this.isError = isErr;
-                    setTimeout(() => { this.message = ''; }, 4000);
-                }
-            }));
-        });
-    </script>
-</body>
-</html>
+                    async stopTimer() {
+                        if (!this.isRunning || this.busyStop) return;
+                        if (this.mode === 'focus' && !window.confirm('Stop and save this session?')) return;
+                        this.busyStop = true;
+                        try {
+                            const response = await fetch(this.urlStop, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': this.csrfToken,
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            const data = await response.json();
+                            if (response.ok) {
+                                this.isRunning = false;
+                                this.stopTick();
+                                this.seconds = 0;
+                                if (data?.logged) window.location.reload();
+                                else this.showMessage(data?.message || 'Session too short.', false);
+                            } else {
+                                this.showMessage(data?.message || 'Failed to stop.', true);
+                            }
+                        } catch {
+                            this.showMessage('Connection error.', true);
+                        } finally {
+                            this.busyStop = false;
+                        }
+                    },
+
+                    showMessage(msg, isErr) {
+                        this.message = msg;
+                        this.isError = isErr;
+                        setTimeout(() => this.message = '', 4000);
+                    }
+                }));
+            });
+        </script>
+    </x-slot:scripts>
+</x-layouts.app>

@@ -13,10 +13,23 @@
         {{ $styles }}
     @endisset
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('confetti'))
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#6366f1', '#a855f7', '#10b981']
+                });
+            @endif
+        });
+    </script>
 </head>
 <body class="bg-slate-900 text-slate-200 antialiased selection:bg-indigo-500 selection:text-white" x-data="{ sidebarOpen: false, profileOpen: false }">
 
