@@ -345,6 +345,7 @@
                 <div x-show="editModalOpen" x-transition:enter="ease-in-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in-out duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="absolute inset-0 bg-gray-500/30 backdrop-blur-sm transition-opacity" @click="editModalOpen = false"></div>
                 <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
                     <div x-show="editModalOpen" x-transition:enter="transform transition ease-in-out duration-300 sm:duration-400" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300 sm:duration-400" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="w-screen max-w-md">
+                        <div class="h-full flex flex-col bg-white shadow-2xl border-l border-gray-100">
                             <div class="px-8 py-8 border-b border-gray-100 flex items-center justify-between bg-white">
                                 <div>
                                     <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Edit Task</h2>
