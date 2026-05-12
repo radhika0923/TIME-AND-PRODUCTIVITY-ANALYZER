@@ -15,13 +15,13 @@
         <div class="lg:col-span-1">
             <nav class="bg-white border border-gray-100 rounded-[2.5rem] p-3 space-y-1 sticky top-28 shadow-sm" x-data="{ activeTab: 'profile' }">
                 <button @click="activeTab = 'profile'; document.getElementById('section-profile').scrollIntoView({ behavior: 'smooth', block: 'start' })"
-                        :class="activeTab === 'profile' ? 'bg-gray-900 text-white shadow-xl shadow-gray-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 border border-transparent'"
+                        :class="activeTab === 'profile' ? 'bg-black text-white shadow-xl shadow-gray-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 border border-transparent'"
                         class="w-full flex items-center gap-4 px-6 py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all duration-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     Profile
                 </button>
                 <button @click="activeTab = 'password'; document.getElementById('section-password').scrollIntoView({ behavior: 'smooth', block: 'start' })"
-                        :class="activeTab === 'password' ? 'bg-gray-900 text-white shadow-xl shadow-gray-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 border border-transparent'"
+                        :class="activeTab === 'password' ? 'bg-black text-white shadow-xl shadow-gray-200' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 border border-transparent'"
                         class="w-full flex items-center gap-4 px-6 py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all duration-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     Password
@@ -162,7 +162,7 @@
                     {{-- Submit --}}
                     <div class="flex items-center gap-6 pt-4">
                         <button type="submit"
-                                class="px-10 py-4 text-xs font-bold text-white bg-gray-900 rounded-2xl hover:bg-black shadow-xl shadow-gray-200 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+                                class="px-10 py-4 text-xs font-bold text-white bg-black rounded-2xl hover:bg-gray-900 shadow-xl shadow-gray-200 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
                             Update Security
                         </button>
                         @if(session('password_status'))

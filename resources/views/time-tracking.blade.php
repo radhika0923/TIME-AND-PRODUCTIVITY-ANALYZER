@@ -168,46 +168,6 @@
                 </div>
             </div>
 
-            <!-- AMBIENT SOUNDS -->
-            <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-lg shadow-gray-200/40" x-data="{ 
-                playing: null,
-                volume: 50,
-                sounds: [
-                    { id: 'rain', name: 'Rain', icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z', url: 'https://www.soundjay.com/nature/rain-01.mp3' },
-                    { id: 'forest', name: 'Forest', icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', url: 'https://www.soundjay.com/nature/forest-birds-01.mp3' },
-                    { id: 'white', name: 'Focus', icon: 'M13 10V3L4 14h7v7l9-11h-7z', url: 'https://www.soundjay.com/misc/sounds/white-noise-01.mp3' }
-                ],
-                toggle(id) {
-                    if (this.playing === id) {
-                        document.getElementById('a-'+id).pause();
-                        this.playing = null;
-                    } else {
-                        if (this.playing) document.getElementById('a-'+this.playing).pause();
-                        const a = document.getElementById('a-'+id);
-                        a.loop = true;
-                        a.volume = this.volume / 100;
-                        a.play();
-                        this.playing = id;
-                    }
-                },
-                setVol() {
-                    if (this.playing) document.getElementById('a-'+this.playing).volume = this.volume/100;
-                }
-            }">
-                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Focus Ambience</h3>
-                <div class="grid grid-cols-3 gap-3">
-                    <template x-for="s in sounds" :key="s.id">
-                        <button @click="toggle(s.id)" 
-                                :class="playing === s.id ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 border-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-400 hover:bg-white'" 
-                                class="flex flex-col items-center justify-center p-4 rounded-2xl border transition-all gap-2 group">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="s.icon"></path></svg>
-                            <span class="text-[8px] font-bold uppercase" x-text="s.name"></span>
-                            <audio :id="'a-'+s.id" :src="s.url"></audio>
-                        </button>
-                    </template>
-                </div>
-                <input type="range" x-model="volume" @input="setVol" class="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-emerald-600 mt-6">
-            </div>
         </div>
     </div>
 
