@@ -75,7 +75,7 @@
                     <div>
                         <label for="name" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Full Name</label>
                         <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300">
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm">
                         @error('name')
                             <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
                         @enderror
@@ -85,7 +85,7 @@
                     <div>
                         <label for="email" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Email Address</label>
                         <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300">
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm">
                         @error('email')
                             <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
                         @enderror
@@ -95,7 +95,7 @@
                         <label for="timezone" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Timezone</label>
                         <input type="text" name="timezone" id="timezone" value="{{ old('timezone', $user->timezone ?? config('app.timezone')) }}"
                                placeholder="e.g. America/New_York"
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300">
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm">
                         <p class="mt-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">Used for accurate charting and daily resets.</p>
                         @error('timezone')
                             <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
@@ -133,7 +133,7 @@
                     <div>
                         <label for="current_password" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Current Password</label>
                         <input type="password" name="current_password" id="current_password" required
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300"
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm"
                                placeholder="••••••••">
                         @error('current_password')
                             <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
@@ -144,7 +144,7 @@
                     <div>
                         <label for="password" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">New Password</label>
                         <input type="password" name="password" id="password" required
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300"
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm"
                                placeholder="Min. 8 characters">
                         @error('password')
                             <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
@@ -155,7 +155,7 @@
                     <div>
                         <label for="password_confirmation" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Confirm Password</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" required
-                               class="w-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-sm rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 transition-all placeholder-gray-300"
+                               class="w-full bg-white border border-gray-200 text-gray-900 font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 shadow-sm"
                                placeholder="••••••••">
                     </div>
 
