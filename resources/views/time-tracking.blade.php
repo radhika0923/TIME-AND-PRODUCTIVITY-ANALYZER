@@ -39,14 +39,14 @@
          @keydown.window="handleGlobalKey($event)">
         
         <!-- MAIN TIMER SECTION -->
-        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-[3rem] p-8 lg:p-12 shadow-xl shadow-gray-200/50 relative overflow-hidden flex flex-col items-center justify-center min-h-[500px]">
+        <div class="lg:col-span-2 bg-white border border-gray-100 rounded-[3rem] p-8 lg:p-12 shadow-xl shadow-gray-200/50 relative overflow-hidden flex flex-col items-center justify-start min-h-[600px]">
             
             <!-- Decorative Background Glow -->
             <div class="absolute inset-0 transition-opacity duration-1000 pointer-events-none" 
                  :class="isRunning && !isPaused ? 'bg-emerald-500/[0.03] opacity-100' : 'opacity-0'"></div>
 
             <!-- Header Controls -->
-            <div x-show="!isRunning" x-transition class="absolute top-8 flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100 z-20">
+            <div x-show="!isRunning" x-transition class="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100 z-20 mb-12">
                 <button @click="setMode('focus')" :class="mode === 'focus' ? 'bg-white text-emerald-600 shadow-sm border-gray-100' : 'text-gray-400 hover:text-gray-600'" class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all border border-transparent">Focus Mode</button>
                 <button @click="setMode('pomodoro')" :class="mode === 'pomodoro' ? 'bg-white text-emerald-600 shadow-sm border-gray-100' : 'text-gray-400 hover:text-gray-600'" class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all border border-transparent">Pomodoro</button>
             </div>
