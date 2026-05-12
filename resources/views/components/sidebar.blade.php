@@ -16,11 +16,6 @@
             <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white" x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">Analyzer</span>
         </div>
         
-        <!-- Collapse Toggle (Desktop) -->
-        <button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden lg:flex items-center justify-center p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" :class="sidebarCollapsed ? 'absolute -right-3 top-7 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm z-50' : ''">
-            <svg class="w-4 h-4 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
-        </button>
-
         <button @click="sidebarOpen = false" class="lg:hidden text-gray-400 hover:text-gray-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -42,7 +37,7 @@
 
         @foreach($links as $link)
             <a href="{{ route($link['route']) }}" 
-               class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs($link['pattern']) ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-600 rounded-l-none' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100' }}"
+               class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs($link['pattern']) ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100' }}"
                :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
                title="{{ $link['label'] }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $link['icon'] !!}</svg>
@@ -52,8 +47,17 @@
     </nav>
 
 
-    <div class="absolute bottom-0 w-full p-6 border-t border-gray-100 dark:border-gray-800" :class="sidebarCollapsed ? 'lg:px-0 lg:flex lg:justify-center' : ''">
-        <form method="POST" action="{{ route('logout') }}">
+    <div class="absolute bottom-0 w-full p-6 border-t border-gray-100 dark:border-gray-800" :class="sidebarCollapsed ? 'lg:px-0 lg:flex lg:flex-col lg:items-center lg:gap-4' : ''">
+        <!-- Collapse Toggle (Desktop) -->
+        <button @click="sidebarCollapsed = !sidebarCollapsed" 
+                class="hidden lg:flex items-center gap-4 w-full px-4 py-3 text-[10px] font-bold uppercase tracking-widest rounded-2xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-300 mb-2"
+                :class="sidebarCollapsed ? 'lg:justify-center lg:px-0 lg:mb-0' : ''"
+                title="Toggle Sidebar">
+            <svg class="w-5 h-5 shrink-0 transition-transform duration-300" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+            <span x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-x-2" x-transition:enter-end="opacity-100 translate-x-0">Collapse</span>
+        </button>
+
+        <form method="POST" action="{{ route('logout') }}" class="w-full">
             @csrf
             <button type="submit" class="w-full flex items-center gap-4 px-4 py-3 text-[10px] font-bold uppercase tracking-widest rounded-2xl text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 border border-transparent hover:border-rose-100 dark:hover:border-rose-500/20 transition-all duration-300"
                     :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
