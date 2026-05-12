@@ -20,7 +20,22 @@
         </div>
     </div>
 
-    <x-dashboard.stats-grid :totalTasks="$totalTasks" :totalTime="$totalTime" />
+    <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-[2rem] p-4 mb-8 shadow-sm flex flex-col sm:flex-row gap-4 items-center transition-all focus-within:shadow-md focus-within:border-emerald-500/30">
+        <div class="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-900/50 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        </div>
+        <form method="POST" action="{{ route('tasks.store') }}" class="flex-1 flex flex-col sm:flex-row gap-4 w-full">
+            @csrf
+            <input type="hidden" name="redirect" value="dashboard">
+            <input type="text" name="title" placeholder="What are you working on right now?" required
+                   class="flex-1 bg-transparent border-none text-gray-900 dark:text-white font-medium text-sm focus:ring-0 p-0 placeholder-gray-400" autocomplete="off">
+            <button type="submit" class="px-6 py-2.5 bg-gray-900 dark:bg-emerald-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-emerald-700 transition-all shrink-0">
+                Quick Add
+            </button>
+        </form>
+    </div>
+
+    <x-dashboard.stats-grid :totalTasks="$totalTasks" :totalTime="$totalTime" :todaySeconds="$todaySeconds ?? 0" :dailyGoalSeconds="$dailyGoalSeconds ?? 14400" />
 
     <div class="flex flex-col gap-6">
         <!-- Main Grid Section -->

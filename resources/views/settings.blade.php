@@ -26,6 +26,12 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     Password
                 </button>
+                <button @click="activeTab = 'preferences'; document.getElementById('section-preferences').scrollIntoView({ behavior: 'smooth', block: 'start' })"
+                        :class="activeTab === 'preferences' ? 'bg-black dark:bg-gray-700 text-white shadow-xl shadow-gray-200 dark:shadow-none' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-white border border-transparent'"
+                        class="w-full flex items-center gap-4 px-6 py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Preferences
+                </button>
                 <button @click="activeTab = 'danger'; document.getElementById('section-danger').scrollIntoView({ behavior: 'smooth', block: 'start' })"
                         :class="activeTab === 'danger' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20 shadow-sm' : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-white border border-transparent'"
                         class="w-full flex items-center gap-4 px-6 py-4 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all duration-300">
@@ -169,6 +175,68 @@
                             <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2 animate-pulse">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 {{ session('password_status') }}
+                            </p>
+                        @endif
+                    </div>
+                </form>
+            </section>
+
+            {{-- ─── Preferences Section ─── --}}
+            <section id="section-preferences" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-[2.5rem] overflow-hidden shadow-sm">
+                <div class="px-8 py-8 border-b border-gray-50 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-900/30">
+                    <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Productivity Preferences</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Configure your daily goals and Pomodoro settings.</p>
+                </div>
+
+                <form method="POST" action="{{ route('settings.preferences') }}" class="p-8 space-y-8">
+                    @csrf
+                    @method('PATCH')
+
+                    {{-- Daily Goal --}}
+                    <div>
+                        <label for="daily_goal_hours" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Daily Focus Goal (Hours)</label>
+                        <input type="number" step="0.5" name="daily_goal_hours" id="daily_goal_hours" value="{{ old('daily_goal_hours', round(($user->daily_goal_seconds ?? 14400) / 3600, 1)) }}" required
+                               class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 dark:placeholder-gray-600 shadow-sm"
+                               placeholder="e.g. 4.0">
+                        @error('daily_goal_hours')
+                            <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {{-- Pomodoro Work --}}
+                        <div>
+                            <label for="pomodoro_work" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Pomodoro Work (Minutes)</label>
+                            <input type="number" name="pomodoro_work" id="pomodoro_work" value="{{ old('pomodoro_work', $user->pomodoro_work ?? 25) }}" required
+                                   class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 dark:placeholder-gray-600 shadow-sm"
+                                   placeholder="e.g. 25">
+                            @error('pomodoro_work')
+                                <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Pomodoro Break --}}
+                        <div>
+                            <label for="pomodoro_break" class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Pomodoro Break (Minutes)</label>
+                            <input type="number" name="pomodoro_break" id="pomodoro_break" value="{{ old('pomodoro_break', $user->pomodoro_break ?? 5) }}" required
+                                   class="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold text-sm rounded-xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/5 focus:border-emerald-500 transition-all placeholder-gray-300 dark:placeholder-gray-600 shadow-sm"
+                                   placeholder="e.g. 5">
+                            @error('pomodoro_break')
+                                <p class="mt-2 text-xs font-bold text-rose-500 uppercase tracking-widest">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Submit --}}
+                    <div class="flex items-center gap-6 pt-4">
+                        <button type="submit"
+                                class="px-10 py-4 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-100 dark:shadow-none transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+                            Update Preferences
+                        </button>
+                        @if(session('preferences_status'))
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-2 animate-pulse">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                {{ session('preferences_status') }}
                             </p>
                         @endif
                     </div>

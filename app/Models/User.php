@@ -26,6 +26,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'email',
         'timezone',
         'password',
+        'daily_goal_seconds',
+        'pomodoro_work',
+        'pomodoro_break',
     ];
 
     /**

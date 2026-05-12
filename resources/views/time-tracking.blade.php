@@ -46,14 +46,15 @@
 
     <x-slot:scripts>
         <script>
-            // Define configuration globally from server-side variables
             window.timerConfig = {
                 initialSeconds: {{ (int) $runningDuration }},
                 initialRunning: {{ $activeSession ? 'true' : 'false' }},
                 initialTaskName: @json($activeSession['task_name'] ?? ''),
                 totalTodaySeconds: {{ (int) $totalTimeTodaySeconds }},
                 urlStart: @json(route('time.start')),
-                urlStop: @json(route('time.stop'))
+                urlStop: @json(route('time.stop')),
+                pomodoroWork: {{ $pomodoroWork ?? 25 }},
+                pomodoroBreak: {{ $pomodoroBreak ?? 5 }}
             };
 
             // Define globally to ensure Alpine can find it regardless of event timing
@@ -164,7 +165,7 @@
                         this.mode = m; 
                         if (m === 'pomodoro') {
                             this.pomodoroPhase = 'work';
-                            this.setDuration(25);
+                            this.setDuration(config.pomodoroWork || 25);
                         } else {
                             this.updateTarget();
                         }
@@ -198,16 +199,16 @@
                             this.pomodoroCount++;
                             if (this.pomodoroCount % 4 === 0) {
                                 this.pomodoroPhase = 'long_break';
-                                this.setDuration(15);
+                                this.setDuration((config.pomodoroBreak || 5) * 3); // Long break is 3x short break
                                 this.msg('Time for a long break!');
                             } else {
                                 this.pomodoroPhase = 'short_break';
-                                this.setDuration(5);
+                                this.setDuration(config.pomodoroBreak || 5);
                                 this.msg('Time for a short break!');
                             }
                         } else {
                             this.pomodoroPhase = 'work';
-                            this.setDuration(25);
+                            this.setDuration(config.pomodoroWork || 25);
                             this.msg('Back to work!');
                         }
                         

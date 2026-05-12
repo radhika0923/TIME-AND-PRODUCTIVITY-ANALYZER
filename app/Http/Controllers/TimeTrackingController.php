@@ -118,7 +118,10 @@ class TimeTrackingController extends Controller
             'runningDuration',
             'filters',
             'recentTasksForChips'
-        ));
+        ))->with([
+            'pomodoroWork' => $user->pomodoro_work ?? 25,
+            'pomodoroBreak' => $user->pomodoro_break ?? 5
+        ]);
     }
 
     public function start(Request $request)

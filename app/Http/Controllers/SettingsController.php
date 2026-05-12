@@ -66,6 +66,28 @@ class SettingsController extends Controller
     }
 
     /**
+     * Update the user's productivity preferences.
+     */
+    public function updatePreferences(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'daily_goal_hours' => ['required', 'numeric', 'min:0.5', 'max:24'],
+            'pomodoro_work' => ['required', 'integer', 'min:5', 'max:120'],
+            'pomodoro_break' => ['required', 'integer', 'min:1', 'max:60'],
+        ]);
+
+        $request->user()->update([
+            'daily_goal_seconds' => $validated['daily_goal_hours'] * 3600,
+            'pomodoro_work' => $validated['pomodoro_work'],
+            'pomodoro_break' => $validated['pomodoro_break'],
+        ]);
+
+        return redirect()
+            ->route('settings')
+            ->with('preferences_status', 'Preferences updated successfully.');
+    }
+
+    /**
      * Update the user's password.
      */
     public function updatePassword(Request $request): RedirectResponse

@@ -23,6 +23,10 @@ class DashboardController extends Controller
         $totalSeconds = (int) $user->timeLogs()->sum('duration');
         $totalTime = Duration::toDecimalHours($totalSeconds);
 
+        [$todayStart, $todayEnd] = UserTime::todayUtcRange($user);
+        $todaySeconds = (int) $user->timeLogs()->whereBetween('created_at', [$todayStart, $todayEnd])->sum('duration');
+        $dailyGoalSeconds = $user->daily_goal_seconds ?? 14400; // default 4 hours
+
         $weekOffset = max(0, min(12, (int) $request->query('week', 0)));
         $tz = UserTime::timezone($user);
         $weekEndDay = Carbon::now($tz)->startOfDay()->subDays(7 * $weekOffset);
@@ -111,6 +115,8 @@ class DashboardController extends Controller
             'focusInsight' => $focusInsight,
             'weekOffset' => $weekOffset,
             'chartWeekLabel' => $chartWeekLabel,
+            'todaySeconds' => $todaySeconds,
+            'dailyGoalSeconds' => $dailyGoalSeconds,
         ]);
     }
 }
