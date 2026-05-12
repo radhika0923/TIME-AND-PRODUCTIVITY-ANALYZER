@@ -3,63 +3,88 @@
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
         <style>
             .fc {
-                --fc-border-color: #1e293b;
+                --fc-border-color: #f1f5f9;
                 --fc-daygrid-dot-event-marker-size: 8px;
-                --fc-event-bg-color: #6366f1;
-                --fc-event-border-color: #6366f1;
-                --fc-page-bg-color: transparent;
-                --fc-neutral-bg-color: #0f172a;
-                --fc-list-event-hover-bg-color: #1e293b;
-                --fc-today-bg-color: rgba(99, 102, 241, 0.05);
-                color: #cbd5e1;
+                --fc-event-bg-color: #10b981;
+                --fc-event-border-color: #10b981;
+                --fc-page-bg-color: #ffffff;
+                --fc-neutral-bg-color: #f8fafc;
+                --fc-list-event-hover-bg-color: #f1f5f9;
+                --fc-today-bg-color: rgba(16, 185, 129, 0.05);
+                color: #475569;
+                font-family: inherit;
             }
             .fc-theme-standard td, .fc-theme-standard th {
-                border-color: #1e293b;
+                border-color: #f1f5f9;
             }
             .fc-toolbar-title {
-                font-size: 1.25rem !important;
-                font-weight: 600 !important;
-                color: #f8fafc !important;
+                font-size: 1.5rem !important;
+                font-weight: 800 !important;
+                color: #0f172a !important;
+                letter-spacing: -0.025em !important;
             }
             .fc-button {
-                background-color: #1e293b !important;
-                border-color: #334155 !important;
-                color: #cbd5e1 !important;
-                font-weight: 500 !important;
-                text-transform: capitalize !important;
-                border-radius: 0.75rem !important;
-                padding: 0.5rem 1rem !important;
+                background-color: #ffffff !important;
+                border-color: #f1f5f9 !important;
+                color: #64748b !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.05em !important;
+                font-size: 0.7rem !important;
+                border-radius: 1rem !important;
+                padding: 0.6rem 1.2rem !important;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+                transition: all 0.2s !important;
+            }
+            .fc-button:hover {
+                background-color: #f8fafc !important;
+                color: #0f172a !important;
             }
             .fc-button-active {
-                background-color: #6366f1 !important;
-                border-color: #6366f1 !important;
+                background-color: #0f172a !important;
+                border-color: #0f172a !important;
                 color: white !important;
             }
             .fc-event {
                 cursor: pointer;
-                border-radius: 6px !important;
-                padding: 2px 4px !important;
-                font-size: 0.85rem !important;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                border-radius: 12px !important;
+                padding: 4px 8px !important;
+                font-size: 0.75rem !important;
+                font-weight: 700 !important;
+                box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1) !important;
+                border: none !important;
+                transition: transform 0.2s !important;
+            }
+            .fc-event:hover {
+                transform: scale(1.02);
             }
             .fc-timegrid-slot {
-                height: 3rem !important;
+                height: 4rem !important;
             }
             .fc-col-header-cell-cushion {
-                padding: 10px 0 !important;
+                padding: 12px 0 !important;
                 color: #94a3b8 !important;
-                font-weight: 500 !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.05em !important;
+                font-size: 0.7rem !important;
+            }
+            .fc-timegrid-axis-cushion, .fc-timegrid-slot-label-cushion {
+                font-size: 0.7rem !important;
+                font-weight: 700 !important;
+                color: #94a3b8 !important;
+                text-transform: uppercase !important;
             }
         </style>
     </x-slot:styles>
 
-    <div class="flex flex-col space-y-6">
+    <div class="flex flex-col space-y-8">
         <div>
-            <h1 class="text-3xl font-semibold tracking-tight text-white mb-1">Weekly Planner</h1>
-            <p class="text-slate-400 text-sm">Schedule your tasks and manage your time slots.</p>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">Weekly Planner</h1>
+            <p class="text-gray-500 text-sm font-medium">Schedule your tasks and manage your time slots with precision.</p>
         </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
             <div id="calendar"></div>
         </div>
     </div>
@@ -74,40 +99,40 @@
                 this.open = true;
             });
         }
-    }" x-show="open" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" @click="open = false"></div>
-        <div class="relative bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-                <h3 class="text-xl font-semibold text-white" x-text="task.title"></h3>
-                <button @click="open = false" class="text-slate-400 hover:text-white">
+    }" x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" @click="open = false"></div>
+        <div class="relative bg-white border border-gray-100 rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+            <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight" x-text="task.title"></h3>
+                <button @click="open = false" class="text-gray-400 hover:text-gray-900 transition-colors p-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-8 space-y-6">
                 <div>
-                    <span class="text-xs font-medium uppercase tracking-wider text-slate-500 block mb-1">Description</span>
-                    <p class="text-slate-300" x-text="task.extendedProps?.description || 'No description'"></p>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Description</span>
+                    <p class="text-gray-600 leading-relaxed font-medium" x-text="task.extendedProps?.description || 'No description provided for this task.'"></p>
                 </div>
-                <div class="flex gap-6">
+                <div class="flex gap-8">
                     <div>
-                        <span class="text-xs font-medium uppercase tracking-wider text-slate-500 block mb-1">Priority</span>
-                        <span class="px-2 py-1 rounded-lg text-xs font-bold uppercase" 
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Priority</span>
+                        <span class="px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest" 
                               :class="{
-                                  'bg-red-500/10 text-red-400': task.extendedProps?.priority === 'high',
-                                  'bg-amber-500/10 text-amber-400': task.extendedProps?.priority === 'medium',
-                                  'bg-blue-500/10 text-blue-400': task.extendedProps?.priority === 'low'
+                                  'bg-rose-50 text-rose-600 border border-rose-100': task.extendedProps?.priority === 'high',
+                                  'bg-amber-50 text-amber-600 border border-amber-100': task.extendedProps?.priority === 'medium',
+                                  'bg-emerald-50 text-emerald-600 border border-emerald-100': task.extendedProps?.priority === 'low'
                               }"
                               x-text="task.extendedProps?.priority"></span>
                     </div>
                     <div>
-                        <span class="text-xs font-medium uppercase tracking-wider text-slate-500 block mb-1">Status</span>
-                        <span class="px-2 py-1 rounded-lg text-xs font-bold uppercase bg-slate-800 text-slate-300" x-text="task.extendedProps?.status"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">Status</span>
+                        <span class="px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-gray-100 text-gray-500 border border-gray-200" x-text="task.extendedProps?.status"></span>
                     </div>
                 </div>
             </div>
-            <div class="p-4 bg-slate-800/50 border-t border-slate-800 flex justify-end gap-3">
-                <button @click="open = false" class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white">Close</button>
-                <a :href="'/tasks/'" class="px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-xl hover:bg-indigo-600 transition-colors">Edit Full Task</a>
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                <button @click="open = false" class="px-6 py-3 text-xs font-bold text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors">Close</button>
+                <a :href="'/tasks/'" class="px-8 py-3 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-100 uppercase tracking-widest transition-all">Edit Details</a>
             </div>
         </div>
     </div>

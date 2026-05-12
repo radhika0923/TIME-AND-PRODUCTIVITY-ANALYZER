@@ -144,7 +144,7 @@
                     </li>
                 </ul>
 
-                <div class="flex items-center justify-between px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <div class="flex items-center justify-between px-4 py-2.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/80 border-t border-gray-100">
                     <div class="flex items-center gap-4">
                         <span><kbd class="font-sans">Esc</kbd> to close</span>
                         <span><kbd class="font-sans">↵</kbd> to select</span>
@@ -153,17 +153,6 @@
                 </div>
             </div>
         </div>
-
-                <div class="flex items-center justify-between px-4 py-2.5 text-xs text-slate-500">
-                    <div class="flex items-center gap-4">
-                        <span><kbd class="font-sans font-semibold text-slate-400">Esc</kbd> to close</span>
-                        <span><kbd class="font-sans font-semibold text-slate-400">↵</kbd> to select</span>
-                    </div>
-                    <span>Powered by Antigravity AI</span>
-                </div>
-            </div>
-        </div>
     </div>
-
 </body>
 </html>

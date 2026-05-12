@@ -2,31 +2,31 @@
     <x-slot:styles>
         <style>
             .task-card {
-                @apply relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 p-6 transition-all duration-300 hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/10 group;
+                @apply relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 group;
             }
             .priority-badge {
-                @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-all duration-200;
+                @apply inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all duration-200;
             }
             .priority-high {
-                @apply bg-red-500/10 text-red-400 border border-red-500/20;
+                @apply bg-rose-50 text-rose-600 border border-rose-100;
             }
             .priority-medium {
-                @apply bg-amber-500/10 text-amber-400 border border-amber-500/20;
+                @apply bg-amber-50 text-amber-600 border border-amber-100;
             }
             .priority-low {
-                @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+                @apply bg-emerald-50 text-emerald-600 border border-emerald-100;
             }
             .status-badge {
-                @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-all duration-200;
+                @apply inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all duration-200;
             }
             .status-completed {
-                @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+                @apply bg-emerald-100 text-emerald-700 border border-emerald-200;
             }
             .status-pending {
-                @apply bg-slate-800 text-slate-400 border border-slate-700;
+                @apply bg-gray-50 text-gray-500 border border-gray-200;
             }
             .modal-backdrop {
-                @apply fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-none;
+                @apply fixed inset-0 z-50 bg-gray-900/20 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-none;
             }
             .modal-backdrop.active {
                 @apply opacity-100 pointer-events-auto;
@@ -38,19 +38,19 @@
                 @apply opacity-100 pointer-events-auto;
             }
             .modal-card {
-                @apply w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl transform transition-transform duration-300 scale-95;
+                @apply w-full max-w-lg rounded-[2.5rem] border border-gray-100 bg-white p-8 shadow-2xl transform transition-all duration-300 scale-95;
             }
             .modal-content.active .modal-card {
                 @apply scale-100;
             }
             .input-field {
-                @apply w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-slate-200 placeholder-slate-500 transition-all duration-200 focus:border-indigo-500/50 focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20;
+                @apply w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-emerald-500/50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10;
             }
             .tab-button {
-                @apply px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800;
+                @apply px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 text-gray-400 hover:text-gray-900 hover:bg-gray-100;
             }
             .tab-button.active {
-                @apply bg-indigo-500/10 text-indigo-400 border border-indigo-500/20;
+                @apply bg-emerald-50 text-emerald-600 border border-emerald-100;
             }
             .animate-fade-in {
                 animation: fadeIn 0.3s ease-out;
@@ -64,8 +64,8 @@
 
     <!-- Header Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 class="text-3xl font-semibold tracking-tight text-white">Tasks</h1>
-        <button type="button" id="openAddModal" class="px-5 py-2.5 text-sm font-medium text-white bg-indigo-500 rounded-xl hover:bg-indigo-600 shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900">Tasks</h1>
+        <button type="button" id="openAddModal" class="px-6 py-3 text-sm font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-200 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <path d="M12 5v14M5 12h14"></path>
             </svg>
@@ -75,32 +75,32 @@
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-indigo-500/30 transition-all duration-300">
+        <div class="group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
             <div class="flex items-center justify-between mb-4">
-                <div class="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400">
+                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 </div>
             </div>
-            <h3 class="text-3xl font-semibold text-white mb-1">{{ $totalTasks }}</h3>
-            <p class="text-sm text-slate-500 font-medium">Total Tasks</p>
+            <h3 class="text-4xl font-extrabold text-gray-900 mb-1 tabular-nums">{{ $totalTasks }}</h3>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Tasks</p>
         </div>
-        <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/30 transition-all duration-300">
+        <div class="group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
             <div class="flex items-center justify-between mb-4">
-                <div class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400">
+                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
-            <h3 class="text-3xl font-semibold text-white mb-1">{{ $completedTasks }}</h3>
-            <p class="text-sm text-slate-500 font-medium">Completed</p>
+            <h3 class="text-4xl font-extrabold text-gray-900 mb-1 tabular-nums">{{ $completedTasks }}</h3>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Completed</p>
         </div>
-        <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-amber-500/30 transition-all duration-300">
+        <div class="group bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
             <div class="flex items-center justify-between mb-4">
-                <div class="p-2.5 bg-amber-500/10 rounded-xl text-amber-400">
+                <div class="p-3 bg-amber-50 rounded-xl text-amber-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
-            <h3 class="text-3xl font-semibold text-white mb-1">{{ $pendingTasks }}</h3>
-            <p class="text-sm text-slate-500 font-medium">Pending</p>
+            <h3 class="text-4xl font-extrabold text-gray-900 mb-1 tabular-nums">{{ $pendingTasks }}</h3>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Pending</p>
         </div>
     </div>
 
@@ -136,17 +136,17 @@
                 <div class="task-card flex items-start justify-between gap-4 animate-fade-in" data-task-id="{{ $task->id }}">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 mb-2">
-                            <button type="button" class="toggle-status flex-shrink-0 h-6 w-6 rounded-lg border-2 transition-all duration-200 flex items-center justify-center @if ($task->status === 'completed') border-emerald-500 bg-emerald-500 @else border-slate-600 hover:border-slate-500 @endif" data-task-id="{{ $task->id }}">
+                            <button type="button" class="toggle-status flex-shrink-0 h-6 w-6 rounded-lg border-2 transition-all duration-200 flex items-center justify-center @if ($task->status === 'completed') border-emerald-500 bg-emerald-500 @else border-gray-300 hover:border-emerald-500 @endif" data-task-id="{{ $task->id }}">
                                 @if ($task->status === 'completed')
                                     <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
                                 @endif
                             </button>
-                            <h3 class="text-lg font-medium text-slate-200 @if ($task->status === 'completed') line-through text-slate-500 @endif">
+                            <h3 class="text-lg font-bold text-gray-900 @if ($task->status === 'completed') line-through text-gray-300 @endif">
                                 {{ $task->title }}
                             </h3>
                         </div>
                         @if ($task->description)
-                            <p class="mb-3 text-sm text-slate-400 pl-9 line-clamp-2">{{ $task->description }}</p>
+                            <p class="mb-3 text-sm text-gray-500 pl-9 line-clamp-2 leading-relaxed">{{ $task->description }}</p>
                         @endif
                         <div class="flex flex-wrap items-center gap-2 pl-9 mt-1">
                             <span class="priority-badge priority-{{ $task->priority }}">
@@ -164,10 +164,10 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button type="button" class="edit-task p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors" data-task-id="{{ $task->id }}" data-title="{{ $task->title }}" data-description="{{ $task->description }}" data-priority="{{ $task->priority }}" data-due-date="{{ $task->due_date?->format('Y-m-d') }}">
+                        <button type="button" class="edit-task p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" data-task-id="{{ $task->id }}" data-title="{{ $task->title }}" data-description="{{ $task->description }}" data-priority="{{ $task->priority }}" data-due-date="{{ $task->due_date?->format('Y-m-d') }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         </button>
-                        <button type="button" class="delete-task p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" data-task-id="{{ $task->id }}">
+                        <button type="button" class="delete-task p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" data-task-id="{{ $task->id }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </div>
@@ -181,12 +181,12 @@
             </div>
         @endif
     @else
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center animate-fade-in">
-            <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-500">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        <div class="bg-white border border-gray-100 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center animate-fade-in shadow-sm">
+            <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-300">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-1">No tasks found</h3>
-            <p class="text-sm text-slate-500">Get started by creating a new task to stay organized.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No tasks found</h3>
+            <p class="text-gray-500 max-w-xs">Get started by creating a new task to stay organized and productive.</p>
         </div>
     @endif
 
@@ -194,25 +194,25 @@
     <div id="addModal" class="modal-backdrop">
         <div class="modal-content w-full">
             <div class="modal-card">
-                <div class="mb-6 flex items-center justify-between">
-                    <h2 class="text-xl font-semibold text-white">Add New Task</h2>
-                    <button type="button" class="close-modal text-slate-400 hover:text-white transition-colors" data-modal="addModal">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <div class="mb-8 flex items-center justify-between">
+                    <h2 class="text-2xl font-extrabold text-gray-900">Add New Task</h2>
+                    <button type="button" class="close-modal p-2 text-gray-400 hover:text-gray-900 transition-colors" data-modal="addModal">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <form id="addTaskForm" class="flex flex-col gap-5">
+                <form id="addTaskForm" class="flex flex-col gap-6">
                     @csrf
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-slate-300">Task Title <span class="text-red-400">*</span></label>
+                        <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-widest">Task Title <span class="text-rose-500">*</span></label>
                         <input type="text" name="title" required class="input-field" placeholder="E.g. Setup project repository">
                     </div>
                     <div>
-                        <label class="mb-2 block text-sm font-medium text-slate-300">Description</label>
+                        <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-widest">Description</label>
                         <textarea name="description" rows="3" class="input-field resize-none" placeholder="Add more details..."></textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-slate-300">Priority <span class="text-red-400">*</span></label>
+                            <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-widest">Priority <span class="text-rose-500">*</span></label>
                             <select name="priority" required class="input-field">
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
@@ -220,13 +220,13 @@
                             </select>
                         </div>
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-slate-300">Due Date</label>
+                            <label class="mb-2 block text-xs font-bold text-gray-400 uppercase tracking-widest">Due Date</label>
                             <input type="date" name="due_date" class="input-field">
                         </div>
                     </div>
-                    <div class="mt-2 flex gap-3">
-                        <button type="button" class="close-modal flex-1 px-4 py-2.5 text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors" data-modal="addModal">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl transition-colors shadow-lg shadow-indigo-500/25">Create Task</button>
+                    <div class="mt-4 flex gap-3">
+                        <button type="button" class="close-modal flex-1 px-4 py-3 text-sm font-bold text-gray-400 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors uppercase tracking-widest" data-modal="addModal">Cancel</button>
+                        <button type="submit" class="flex-1 px-4 py-3 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-2xl transition-all shadow-xl shadow-emerald-100 uppercase tracking-widest">Create Task</button>
                     </div>
                 </form>
             </div>
