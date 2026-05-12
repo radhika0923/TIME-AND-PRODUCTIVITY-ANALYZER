@@ -14,8 +14,10 @@ class TaskController extends Controller
         if ($request->has('filter')) {
             if ($request->filter === 'completed') {
                 $query->where('status', 'completed');
+            } elseif ($request->filter === 'in_progress') {
+                $query->where('status', 'in_progress');
             } elseif ($request->filter === 'pending') {
-                $query->where('status', 'pending');
+                $query->whereIn('status', ['pending', 'in_progress']);
             }
         }
 
@@ -100,5 +102,19 @@ class TaskController extends Controller
         }
 
         return $response;
+    }
+    public function updateStatus(Request $request, $id)
+    {
+        $task = Task::where('user_id', $request->user()->id)->findOrFail($id);
+        
+        $validated = $request->validate([
+            'status' => 'required|string|in:pending,in_progress,completed'
+        ]);
+
+        $task->update([
+            'status' => $validated['status']
+        ]);
+
+        return response()->json(['success' => true, 'status' => $task->status]);
     }
 }

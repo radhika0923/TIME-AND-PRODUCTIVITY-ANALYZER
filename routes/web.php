@@ -63,6 +63,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tasks', TaskController::class);
     Route::patch('/tasks/{id}/complete', [TaskController::class, 'markComplete'])->name('tasks.complete');
+    Route::patch('/tasks/{id}/status', [TaskController::class, 'updateStatus'])->name('tasks.status');
 
     // Category Routes
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
