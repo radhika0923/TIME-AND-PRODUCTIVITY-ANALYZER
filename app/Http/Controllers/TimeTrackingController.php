@@ -171,7 +171,15 @@ class TimeTrackingController extends Controller
 
             $startTime = $user->focus_timer_started_at;
             $taskId = $user->focus_timer_task_id;
-            $durationSeconds = max(0, (int) $startTime->diffInSeconds(now()));
+            $maxDurationSeconds = max(0, (int) $startTime->diffInSeconds(now()));
+            
+            // Allow frontend to specify exact duration (to account for pauses)
+            $frontendDuration = $request->input('duration');
+            $durationSeconds = $maxDurationSeconds;
+            
+            if (is_numeric($frontendDuration) && $frontendDuration >= 0 && $frontendDuration <= $maxDurationSeconds) {
+                $durationSeconds = (int) $frontendDuration;
+            }
 
             $logged = $durationSeconds >= 60;
             if ($logged) {

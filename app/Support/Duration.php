@@ -14,14 +14,7 @@ final class Duration
         $m = intdiv($seconds % 3600, 60);
         $s = $seconds % 60;
 
-        if ($h > 0) {
-            return "{$h}h {$m}m";
-        }
-        if ($m > 0) {
-            return $s > 0 ? "{$m}m {$s}s" : "{$m}m";
-        }
-
-        return "{$s}s";
+        return sprintf('%02d:%02d:%02d', $h, $m, $s);
     }
 
     /**
