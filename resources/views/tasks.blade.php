@@ -169,8 +169,8 @@
         </div>
 
         <!-- Kanban Board Content -->
-        <div class="mt-8 overflow-x-auto pb-8" x-show="viewMode === 'board'" x-cloak x-transition>
-            <div class="flex gap-8 min-w-[1200px] h-[calc(100vh-340px)]">
+        <div class="mt-8 overflow-x-auto pb-12" x-show="viewMode === 'board'" x-cloak x-transition>
+            <div class="flex gap-8 min-w-[1200px] items-start">
                 @foreach(['pending' => 'Backlog', 'in_progress' => 'Active', 'completed' => 'Finished'] as $status => $label)
                     <div class="flex-1 flex flex-col bg-gray-50/50 rounded-[2.5rem] border border-gray-100 p-6">
                         <div class="flex items-center justify-between mb-6 px-4">
@@ -183,7 +183,7 @@
                             </span>
                         </div>
 
-                        <div class="flex-1 overflow-y-auto space-y-4 px-2 custom-scrollbar kanban-column" data-status="{{ $status }}">
+                        <div class="flex-1 space-y-4 px-2 kanban-column" data-status="{{ $status }}">
                             @foreach($tasks->where('status', $status) as $task)
                                 <div class="kanban-item group bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-50 hover:border-emerald-100 transition-all cursor-grab active:cursor-grabbing" data-id="{{ $task->id }}">
                                     <div class="flex flex-col gap-4">
