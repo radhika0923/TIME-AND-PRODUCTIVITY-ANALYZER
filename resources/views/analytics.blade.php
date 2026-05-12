@@ -108,19 +108,22 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                 </div>
             </div>
-            <h3 class="text-4xl font-extrabold text-gray-900 mb-1 tabular-nums">{{ $completionRate }}%</h3>
+            <h3 class="text-4xl font-extrabold text-gray-900 mb-1 tabular-nums">{{ $productivityScore }}%</h3>
             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Success Rate</p>
         </div>
     </div>
 
     <!-- Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         
         <!-- Left: Weekly Focus Time -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-semibold text-white">Focus Time (Last 7 Days)</h2>
-                <span class="text-sm text-slate-400">Avg {{ $avgDailyFocusTime }}h / day</span>
+        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">Focus Time</h2>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Last 7 Days</p>
+                </div>
+                <span class="px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-xl border border-emerald-100">Avg {{ $avgDailyFocusTime }}h / day</span>
             </div>
             <div class="relative h-72 w-full">
                 <canvas id="focusTimeChart"></canvas>
@@ -128,9 +131,12 @@
         </div>
 
         <!-- Right: Completed Tasks -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-lg font-semibold text-white">Completed Tasks</h2>
+        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">Activity Log</h2>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Completed Tasks</p>
+                </div>
             </div>
             <div class="relative h-72 w-full">
                 <canvas id="completedTasksChart"></canvas>
@@ -148,8 +154,8 @@
 
             const ctxFocus = document.getElementById('focusTimeChart').getContext('2d');
             let gradientFocus = ctxFocus.createLinearGradient(0, 0, 0, 300);
-            gradientFocus.addColorStop(0, 'rgba(99, 102, 241, 0.2)'); 
-            gradientFocus.addColorStop(1, 'rgba(99, 102, 241, 0)');
+            gradientFocus.addColorStop(0, 'rgba(16, 185, 129, 0.1)'); 
+            gradientFocus.addColorStop(1, 'rgba(16, 185, 129, 0)');
 
             new Chart(ctxFocus, {
                 type: 'line',
@@ -158,11 +164,11 @@
                     datasets: [{
                         label: 'Focus Hours',
                         data: weeklyTimeData,
-                        borderColor: '#6366f1',
+                        borderColor: '#10b981',
                         backgroundColor: gradientFocus,
                         borderWidth: 3,
-                        pointBackgroundColor: '#1e293b',
-                        pointBorderColor: '#6366f1',
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#10b981',
                         pointBorderWidth: 2,
                         pointRadius: 4,
                         pointHoverRadius: 6,
@@ -178,25 +184,32 @@
                         tooltip: {
                             backgroundColor: '#0f172a',
                             titleColor: '#fff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: '#334155',
+                            bodyColor: '#f1f5f9',
+                            borderColor: '#1e293b',
                             borderWidth: 1,
                             padding: 12,
                             displayColors: false,
+                            cornerRadius: 12,
                             callbacks: {
-                                label: function(context) { return context.parsed.y + ' hrs'; }
+                                label: function(context) { return context.parsed.y + ' hrs logged'; }
                             }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#1e293b', drawBorder: false },
-                            ticks: { color: '#64748b' }
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            ticks: { 
+                                color: '#94a3b8',
+                                font: { weight: '700', size: 10 }
+                            }
                         },
                         x: {
                             grid: { display: false, drawBorder: false },
-                            ticks: { color: '#64748b' }
+                            ticks: { 
+                                color: '#94a3b8',
+                                font: { weight: '700', size: 10 }
+                            }
                         }
                     },
                     interaction: { intersect: false, mode: 'index' },
@@ -212,10 +225,10 @@
                         label: 'Tasks Completed',
                         data: completedTasksPerDay,
                         backgroundColor: '#10b981',
-                        borderRadius: 6,
+                        borderRadius: 12,
                         borderSkipped: false,
-                        barPercentage: 0.6,
-                        hoverBackgroundColor: '#34d399'
+                        barPercentage: 0.5,
+                        hoverBackgroundColor: '#059669'
                     }]
                 },
                 options: {
@@ -226,25 +239,33 @@
                         tooltip: {
                             backgroundColor: '#0f172a',
                             titleColor: '#fff',
-                            bodyColor: '#cbd5e1',
-                            borderColor: '#334155',
+                            bodyColor: '#f1f5f9',
+                            borderColor: '#1e293b',
                             borderWidth: 1,
                             padding: 12,
                             displayColors: false,
+                            cornerRadius: 12,
                             callbacks: {
-                                label: function(context) { return context.parsed.y + ' tasks'; }
+                                label: function(context) { return context.parsed.y + ' tasks finished'; }
                             }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#1e293b', drawBorder: false },
-                            ticks: { color: '#64748b', stepSize: 1 }
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            ticks: { 
+                                color: '#94a3b8',
+                                font: { weight: '700', size: 10 },
+                                stepSize: 1
+                            }
                         },
                         x: {
                             grid: { display: false, drawBorder: false },
-                            ticks: { color: '#64748b' }
+                            ticks: { 
+                                color: '#94a3b8',
+                                font: { weight: '700', size: 10 }
+                            }
                         }
                     },
                     interaction: { intersect: false, mode: 'index' },

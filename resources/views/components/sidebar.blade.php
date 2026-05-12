@@ -42,12 +42,12 @@
         </a>
     </nav>
 
-    <div class="absolute bottom-0 w-full p-4 border-t border-slate-800">
+    <div class="absolute bottom-0 w-full p-6 border-t border-gray-100">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200">
+            <button type="submit" class="w-full flex items-center gap-4 px-4 py-3 text-[10px] font-bold uppercase tracking-widest rounded-2xl text-gray-400 hover:bg-rose-50 hover:text-rose-600 border border-transparent hover:border-rose-100 transition-all duration-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                Logout
+                Sign Out
             </button>
         </form>
     </div>

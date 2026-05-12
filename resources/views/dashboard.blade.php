@@ -21,7 +21,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <!-- Card 1: Finished (Green Card) -->
         <div class="group bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-[2rem] p-6 text-white shadow-xl shadow-emerald-900/20 transition-all duration-300 hover:scale-[1.02]">
             <div class="flex justify-between items-start mb-6">
@@ -64,19 +64,6 @@
             </div>
         </div>
 
-        <!-- Card 4: Team/Profile (Simplified for now) -->
-        <div class="group bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-            <div class="relative mb-3">
-                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'User' }}&background=10B981&color=fff" class="w-16 h-16 rounded-full border-4 border-gray-50 shadow-sm" alt="Avatar">
-                <div class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
-            </div>
-            <h4 class="text-lg font-bold text-gray-900">{{ auth()->user()->name ?? 'User' }}</h4>
-            <p class="text-xs text-gray-400 mb-4">{{ auth()->user()->email ?? 'user@example.com' }}</p>
-            <div class="flex gap-2">
-                <button class="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></button>
-                <button class="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
-            </div>
-        </div>
     </div>
                 <!-- Main Grid Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
