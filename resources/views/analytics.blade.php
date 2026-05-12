@@ -5,29 +5,29 @@
 
     <!-- Header -->
     <div>
-        <h1 class="text-3xl font-semibold tracking-tight text-white mb-1">Analytics Overview</h1>
-        <p class="text-slate-400 text-sm">Deep dive into your productivity patterns and task completion.</p>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-1">Analytics Overview</h1>
+        <p class="text-gray-500 text-sm">Deep dive into your productivity patterns and task completion.</p>
     </div>
 
-    <p class="text-sm text-slate-400 -mt-4 mb-2">
-        Focus streak: <span class="text-white font-semibold tabular-nums">{{ $focusStreak ?? 0 }}</span> consecutive days with at least 1 minute logged (uses the timezone in Settings).
+    <p class="text-sm text-gray-500 -mt-4 mb-2">
+        Focus streak: <span class="text-emerald-600 font-bold tabular-nums">{{ $focusStreak ?? 0 }}</span> consecutive days with at least 1 minute logged (uses the timezone in Settings).
     </p>
 
     <!-- Productivity Heatmap -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm mb-6">
+    <div class="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
-                <h2 class="text-lg font-semibold text-white">Focus Heatmap</h2>
-                <p class="text-xs text-slate-500 mt-1">Your focus intensity over the last 365 days.</p>
+                <h2 class="text-lg font-bold text-gray-900">Focus Heatmap</h2>
+                <p class="text-xs text-gray-400 mt-1">Your focus intensity over the last 365 days.</p>
             </div>
-            <div class="flex items-center gap-2 text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+            <div class="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                 <span>Less</span>
                 <div class="flex gap-1">
-                    <div class="w-3 h-3 rounded-sm bg-slate-800"></div>
-                    <div class="w-3 h-3 rounded-sm bg-indigo-500/20"></div>
-                    <div class="w-3 h-3 rounded-sm bg-indigo-500/40"></div>
-                    <div class="w-3 h-3 rounded-sm bg-indigo-500/70"></div>
-                    <div class="w-3 h-3 rounded-sm bg-indigo-500"></div>
+                    <div class="w-3 h-3 rounded-sm bg-gray-100"></div>
+                    <div class="w-3 h-3 rounded-sm bg-emerald-500/20"></div>
+                    <div class="w-3 h-3 rounded-sm bg-emerald-500/40"></div>
+                    <div class="w-3 h-3 rounded-sm bg-emerald-500/70"></div>
+                    <div class="w-3 h-3 rounded-sm bg-emerald-500"></div>
                 </div>
                 <span>More</span>
             </div>
@@ -41,11 +41,11 @@
                 @foreach($heatmapData as $date => $seconds)
                     @php
                         $intensity = $maxDailySeconds > 0 ? ($seconds / $maxDailySeconds) : 0;
-                        $colorClass = 'bg-slate-800';
-                        if ($intensity > 0.75) $colorClass = 'bg-indigo-500';
-                        elseif ($intensity > 0.5) $colorClass = 'bg-indigo-500/70';
-                        elseif ($intensity > 0.25) $colorClass = 'bg-indigo-500/40';
-                        elseif ($intensity > 0) $colorClass = 'bg-indigo-500/20';
+                        $colorClass = 'bg-gray-100';
+                        if ($intensity > 0.75) $colorClass = 'bg-emerald-500';
+                        elseif ($intensity > 0.5) $colorClass = 'bg-emerald-500/70';
+                        elseif ($intensity > 0.25) $colorClass = 'bg-emerald-500/40';
+                        elseif ($intensity > 0) $colorClass = 'bg-emerald-500/20';
                         
                         $formattedDuration = \App\Support\Duration::format($seconds);
                         $formattedDate = \Carbon\Carbon::parse($date)->format('M d, Y');
@@ -53,14 +53,14 @@
                     <div class="w-3.5 h-3.5 rounded-sm {{ $colorClass }} transition-colors cursor-help group relative" 
                          title="{{ $formattedDate }}: {{ $formattedDuration }}">
                         <!-- Tooltip -->
-                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10 border border-slate-700 shadow-xl">
+                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-[10px] text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-10 shadow-xl">
                             {{ $formattedDate }}: {{ $formattedDuration }}
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
-        <div class="flex justify-between mt-4 text-[10px] font-medium text-slate-600 uppercase tracking-widest px-1">
+        <div class="flex justify-between mt-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1">
             <span>{{ \Carbon\Carbon::now()->subDays(364)->format('M Y') }}</span>
             <span>{{ \Carbon\Carbon::now()->format('M Y') }}</span>
         </div>

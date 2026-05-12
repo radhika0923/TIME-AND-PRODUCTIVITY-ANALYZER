@@ -141,6 +141,54 @@
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
             </div>
+
+            <!-- Ambient Focus Sounds -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 shadow-sm" x-data="{ 
+                playing: null,
+                volume: 50,
+                sounds: [
+                    { id: 'rain', name: 'Rain', icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z', url: 'https://www.soundjay.com/nature/rain-01.mp3' },
+                    { id: 'forest', name: 'Forest', icon: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z', url: 'https://www.soundjay.com/nature/forest-birds-01.mp3' },
+                    { id: 'noise', name: 'White Noise', icon: 'M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', url: 'https://www.soundjay.com/misc/sounds/white-noise-01.mp3' }
+                ],
+                toggleSound(id) {
+                    const audio = document.getElementById('audio-' + id);
+                    if (this.playing === id) {
+                        audio.pause();
+                        this.playing = null;
+                    } else {
+                        if (this.playing) document.getElementById('audio-' + this.playing).pause();
+                        audio.play();
+                        audio.loop = true;
+                        this.playing = id;
+                    }
+                },
+                updateVolume() {
+                    this.sounds.forEach(s => {
+                        const audio = document.getElementById('audio-' + s.id);
+                        if (audio) audio.volume = this.volume / 100;
+                    });
+                }
+            }">
+                <h3 class="text-sm font-semibold text-white uppercase tracking-wider text-slate-500">Ambient Sounds</h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <template x-for="sound in sounds" :key="sound.id">
+                        <button @click="toggleSound(sound.id)" 
+                                :class="playing === sound.id ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400' : 'bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-slate-600'" 
+                                class="flex flex-col items-center justify-center p-3 rounded-xl border transition-all gap-2 group">
+                            <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sound.icon"></path>
+                            </svg>
+                            <span class="text-[10px] font-medium" x-text="sound.name"></span>
+                            <audio :id="'audio-' + sound.id" :src="sound.url"></audio>
+                        </button>
+                    </template>
+                </div>
+                <div class="mt-2 flex items-center gap-3">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                    <input type="range" x-model="volume" @input="updateVolume" class="flex-1 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                </div>
+            </div>
         </div>
     </div>
 

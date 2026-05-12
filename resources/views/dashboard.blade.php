@@ -20,53 +20,64 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Card 1 -->
-                    <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="text-3xl font-semibold text-white mb-1">{{ $totalTasks ?? 0 }}</h3>
-                        <p class="text-sm text-slate-500 font-medium">Total Tasks</p>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400 group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="text-3xl font-semibold text-white mb-1">{{ $completedTasks ?? 0 }}</h3>
-                        <p class="text-sm text-slate-500 font-medium">Completed Tasks</p>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-amber-500/30 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-2.5 bg-amber-500/10 rounded-xl text-amber-400 group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="text-3xl font-semibold text-white mb-1">{{ $pendingTasks ?? 0 }}</h3>
-                        <p class="text-sm text-slate-500 font-medium">Pending Tasks</p>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div class="group bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-purple-500/30 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-2.5 bg-purple-500/10 rounded-xl text-purple-400 group-hover:scale-110 transition-transform">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            </div>
-                        </div>
-                        <h3 class="text-3xl font-semibold text-white mb-1">{{ $totalTime ?? 0 }}h</h3>
-                        <p class="text-sm text-slate-500 font-medium">Total Focus Time</p>
-                    </div>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1: Finished (Green Card) -->
+        <div class="group bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-[2rem] p-6 text-white shadow-xl shadow-emerald-900/20 transition-all duration-300 hover:scale-[1.02]">
+            <div class="flex justify-between items-start mb-6">
+                <p class="text-sm font-medium opacity-90 uppercase tracking-widest">Finished</p>
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </div>
+            </div>
+            <h3 class="text-5xl font-bold mb-4 tabular-nums">{{ $totalTasks ?? 0 }}</h3>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 text-[10px] font-bold uppercase tracking-wider">
+                <span class="text-emerald-300">+8</span> tasks
+            </div>
+        </div>
 
+        <!-- Card 2: Tracked (White Card) -->
+        <div class="group bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div class="flex justify-between items-start mb-6">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-widest">Tracked</p>
+                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <h3 class="text-5xl font-bold text-gray-900 mb-4 tabular-nums">{{ $totalTime ?? 0 }}h</h3>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-[10px] font-bold text-rose-500 uppercase tracking-wider">
+                <span class="text-rose-600">-6</span> hours
+            </div>
+        </div>
+
+        <!-- Card 3: Efficiency (White Card) -->
+        <div class="group bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div class="flex justify-between items-start mb-6">
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider tracking-widest">Efficiency</p>
+                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                </div>
+            </div>
+            <h3 class="text-5xl font-bold text-gray-900 mb-4 tabular-nums">93%</h3>
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                12% <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+            </div>
+        </div>
+
+        <!-- Card 4: Team/Profile (Simplified for now) -->
+        <div class="group bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
+            <div class="relative mb-3">
+                <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name ?? 'User' }}&background=10B981&color=fff" class="w-16 h-16 rounded-full border-4 border-gray-50 shadow-sm" alt="Avatar">
+                <div class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+            </div>
+            <h4 class="text-lg font-bold text-gray-900">{{ auth()->user()->name ?? 'User' }}</h4>
+            <p class="text-xs text-gray-400 mb-4">{{ auth()->user()->email ?? 'user@example.com' }}</p>
+            <div class="flex gap-2">
+                <button class="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg></button>
+                <button class="p-2 rounded-full bg-gray-50 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
+            </div>
+        </div>
+    </div>
                 <!-- Main Grid Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
