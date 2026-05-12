@@ -96,7 +96,13 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased selection:bg-emerald-500 selection:text-white" x-data="{ sidebarOpen: false, profileOpen: false }">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased selection:bg-emerald-500 selection:text-white" 
+      x-data="{ 
+          sidebarOpen: false, 
+          profileOpen: false,
+          sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true'
+      }"
+      x-init="$watch('sidebarCollapsed', value => localStorage.setItem('sidebarCollapsed', value))">
 
     <div class="flex h-screen overflow-hidden" x-data="{ commandPaletteOpen: false }" @keydown.window.ctrl.k.prevent="commandPaletteOpen = true" @keydown.window.slash.prevent="if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') commandPaletteOpen = true">
         
