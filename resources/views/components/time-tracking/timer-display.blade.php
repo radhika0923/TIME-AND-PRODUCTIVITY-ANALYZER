@@ -5,7 +5,7 @@
     
     <!-- Decorative Background Glow -->
     <div class="absolute inset-0 transition-opacity duration-1000 pointer-events-none" 
-         :class="isRunning && !isPaused ? 'bg-emerald-500/[0.03] opacity-100' : 'opacity-0'"></div>
+         :class="isRunning && !isPaused ? (mode === 'pomodoro' && pomodoroPhase !== 'work' ? 'bg-sky-500/[0.03] opacity-100' : 'bg-emerald-500/[0.03] opacity-100') : 'opacity-0'"></div>
 
     <!-- Header Controls -->
     <div x-show="!isRunning" x-transition class="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100 z-20 mb-12">
@@ -15,12 +15,12 @@
 
     <!-- Task Label -->
     <div class="relative z-10 text-center mb-8" x-show="isRunning" x-transition>
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 mb-4">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4" :class="mode === 'pomodoro' && pomodoroPhase !== 'work' ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'">
             <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" x-show="!isPaused"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="mode === 'pomodoro' && pomodoroPhase !== 'work' ? 'bg-sky-400' : 'bg-emerald-400'" x-show="!isPaused"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2" :class="mode === 'pomodoro' && pomodoroPhase !== 'work' ? 'bg-sky-500' : 'bg-emerald-500'"></span>
             </span>
-            <span class="text-[10px] font-bold uppercase tracking-widest" x-text="isPaused ? 'Session Paused' : (mode === 'pomodoro' ? 'Pomodoro Active' : 'Focus Active')"></span>
+            <span class="text-[10px] font-bold uppercase tracking-widest" x-text="isPaused ? 'Session Paused' : (mode === 'pomodoro' ? (pomodoroPhase === 'work' ? 'Pomodoro Focus' : (pomodoroPhase === 'short_break' ? 'Short Break' : 'Long Break')) : 'Focus Active')"></span>
         </div>
         <h3 class="text-2xl font-bold text-gray-900" x-text="activeTaskName || 'Uncategorized Session'">{{ $activeSession['task_name'] ?? 'Ready to Focus' }}</h3>
     </div>
@@ -31,7 +31,8 @@
         <svg class="w-64 h-64 sm:w-80 sm:h-80" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="45" fill="none" stroke="#F3F4F6" stroke-width="2" />
             <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2.5" 
-                    class="timer-ring text-emerald-500"
+                    class="timer-ring transition-colors"
+                    :class="mode === 'pomodoro' && pomodoroPhase !== 'work' ? 'text-sky-500' : 'text-emerald-500'"
                     stroke-linecap="round"
                     :stroke-dasharray="2 * Math.PI * 45"
                     :stroke-dashoffset="progressOffset" />

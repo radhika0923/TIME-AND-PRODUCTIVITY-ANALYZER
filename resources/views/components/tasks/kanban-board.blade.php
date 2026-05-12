@@ -47,7 +47,7 @@
                                         @endif
                                     </div>
                                     
-                                    <button @click="taskToEdit = { id: {{ $task->id }}, title: '{{ addslashes($task->title) }}', description: '{{ addslashes($task->description) }}', category_id: '{{ $task->category_id ?? '' }}', due_date: '{{ $task->due_date ? $task->due_date->format('Y-m-d\TH:i') : '' }}', priority: '{{ $task->priority }}' }; editModalOpen = true" class="text-gray-400 hover:text-emerald-600 p-1.5 hover:bg-emerald-50 rounded-lg transition-all">
+                                    <button @click="taskToEdit = { id: {{ $task->id }}, title: '{{ addslashes($task->title) }}', description: '{{ addslashes($task->description) }}', category_id: '{{ $task->category_id ?? '' }}', due_date: '{{ $task->due_date ? $task->due_date->format('Y-m-d\TH:i') : '' }}', priority: '{{ $task->priority }}', subtasks: {{ htmlspecialchars(json_encode($task->subtasks), ENT_QUOTES, 'UTF-8') }} }; editModalOpen = true" class="text-gray-400 hover:text-emerald-600 p-1.5 hover:bg-emerald-50 rounded-lg transition-all">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
                                 </div>

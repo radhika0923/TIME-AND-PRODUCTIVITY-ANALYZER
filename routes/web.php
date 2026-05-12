@@ -65,6 +65,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/tasks/{id}/complete', [TaskController::class, 'markComplete'])->name('tasks.complete');
     Route::patch('/tasks/{id}/status', [TaskController::class, 'updateStatus'])->name('tasks.status');
 
+    // Subtask Routes
+    Route::post('/tasks/{task}/subtasks', [\App\Http\Controllers\SubtaskController::class, 'store'])->name('subtasks.store');
+    Route::patch('/subtasks/{subtask}/toggle', [\App\Http\Controllers\SubtaskController::class, 'toggle'])->name('subtasks.toggle');
+    Route::delete('/subtasks/{subtask}', [\App\Http\Controllers\SubtaskController::class, 'destroy'])->name('subtasks.destroy');
+
     // Category Routes
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');

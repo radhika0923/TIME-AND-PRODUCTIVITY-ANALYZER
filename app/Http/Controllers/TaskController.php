@@ -9,7 +9,7 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->user()->tasks()->with('category')->latest();
+        $query = $request->user()->tasks()->with(['category', 'subtasks'])->latest();
         
         if ($request->has('filter')) {
             if ($request->filter === 'completed') {

@@ -115,6 +115,9 @@
                         return (2 * Math.PI * 45) * ratio;
                     },
 
+                    pomodoroPhase: 'work',
+                    pomodoroCount: 0,
+
                     init() { 
                         if (this.isRunning) {
                             const saved = localStorage.getItem('timerState');
@@ -124,6 +127,8 @@
                                     this.mode = parsed.mode || 'focus';
                                     this.targetSeconds = parsed.targetSeconds || (25 * 60);
                                     this.isPaused = parsed.isPaused || false;
+                                    this.pomodoroPhase = parsed.pomodoroPhase || 'work';
+                                    this.pomodoroCount = parsed.pomodoroCount || 0;
                                     
                                     if (this.isPaused) {
                                         this.seconds = parsed.seconds;
@@ -149,11 +154,21 @@
                             targetSeconds: this.targetSeconds,
                             isPaused: this.isPaused,
                             seconds: this.seconds,
+                            pomodoroPhase: this.pomodoroPhase,
+                            pomodoroCount: this.pomodoroCount,
                             lastTick: Date.now()
                         }));
                     },
 
-                    setMode(m) { this.mode = m; this.updateTarget(); },
+                    setMode(m) { 
+                        this.mode = m; 
+                        if (m === 'pomodoro') {
+                            this.pomodoroPhase = 'work';
+                            this.setDuration(25);
+                        } else {
+                            this.updateTarget();
+                        }
+                    },
                     setDuration(m) { 
                         this.configHrs = Math.floor(m / 60); 
                         this.configMins = m % 60; 
@@ -176,9 +191,30 @@
                         }, 1000);
                     },
 
-                    onComplete() {
-                        this.stopTimer();
-                        alert('Session Complete!');
+                    async onComplete() {
+                        await this.stopTimer(true);
+                        
+                        if (this.pomodoroPhase === 'work') {
+                            this.pomodoroCount++;
+                            if (this.pomodoroCount % 4 === 0) {
+                                this.pomodoroPhase = 'long_break';
+                                this.setDuration(15);
+                                this.msg('Time for a long break!');
+                            } else {
+                                this.pomodoroPhase = 'short_break';
+                                this.setDuration(5);
+                                this.msg('Time for a short break!');
+                            }
+                        } else {
+                            this.pomodoroPhase = 'work';
+                            this.setDuration(25);
+                            this.msg('Back to work!');
+                        }
+                        
+                        // Wait briefly before starting the next phase
+                        setTimeout(() => {
+                            this.startTimer();
+                        }, 2000);
                     },
 
                     togglePause() { 
@@ -192,6 +228,19 @@
                         if (this.isRunning || this.busyStart) return;
                         this.updateTarget();
                         this.busyStart = true;
+                        
+                        // We don't need to log break times to the server, so we skip API calls for breaks
+                        if (this.mode === 'pomodoro' && (this.pomodoroPhase === 'short_break' || this.pomodoroPhase === 'long_break')) {
+                            this.isRunning = true; 
+                            this.isPaused = false; 
+                            this.seconds = 0;
+                            this.activeTaskName = 'Break Time';
+                            this.saveState();
+                            this.startTick();
+                            this.busyStart = false;
+                            return;
+                        }
+
                         try {
                             const res = await fetch(this.urlStart, {
                                 method: 'POST',
@@ -214,9 +263,20 @@
                         } finally { this.busyStart = false; }
                     },
 
-                    async stopTimer() {
+                    async stopTimer(preventReload = false) {
                         if (!this.isRunning || this.busyStop) return;
                         this.busyStop = true;
+                        
+                        // If it's a break, no need to call API to save
+                        if (this.mode === 'pomodoro' && (this.pomodoroPhase === 'short_break' || this.pomodoroPhase === 'long_break')) {
+                            this.isRunning = false; 
+                            clearInterval(this.interval);
+                            localStorage.removeItem('timerState');
+                            this.seconds = 0;
+                            this.busyStop = false;
+                            return;
+                        }
+
                         try {
                             const res = await fetch(this.urlStop, {
                                 method: 'POST',
@@ -228,8 +288,9 @@
                                 this.isRunning = false; 
                                 clearInterval(this.interval);
                                 localStorage.removeItem('timerState');
-                                if (data?.logged) window.location.reload();
-                                else {
+                                if (data?.logged) {
+                                    if (!preventReload) window.location.reload();
+                                } else {
                                     this.seconds = 0;
                                     this.msg('Session under 60s not saved.');
                                 }

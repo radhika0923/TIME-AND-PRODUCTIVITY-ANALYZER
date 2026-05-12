@@ -61,4 +61,12 @@ class Task extends Model
     {
         return $this->hasMany(Reminder::class);
     }
+
+    /**
+     * Get all subtasks for this task.
+     */
+    public function subtasks(): HasMany
+    {
+        return $this->hasMany(Subtask::class);
+    }
 }

@@ -94,6 +94,94 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Subtasks / Checklist -->
+                                <div class="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 space-y-4" x-data="{ newSubtask: '' }">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtasks Checklist</label>
+                                    </div>
+                                    
+                                    <!-- List of subtasks -->
+                                    <template x-if="taskToEdit && taskToEdit.subtasks && taskToEdit.subtasks.length > 0">
+                                        <div class="space-y-2 mb-4">
+                                            <template x-for="(subtask, index) in taskToEdit.subtasks" :key="subtask.id">
+                                                <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100 shadow-sm transition-all hover:border-emerald-200 group">
+                                                    <div class="flex items-center gap-3">
+                                                        <input type="checkbox" :id="'subtask_'+subtask.id" x-model="subtask.is_completed" 
+                                                            @change="
+                                                                fetch(`/subtasks/${subtask.id}/toggle`, {
+                                                                    method: 'PATCH',
+                                                                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'), 'Accept': 'application/json' }
+                                                                })
+                                                            " 
+                                                            class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                                                        <label :for="'subtask_'+subtask.id" class="text-sm font-medium text-gray-700 cursor-pointer select-none" :class="{ 'line-through text-gray-400': subtask.is_completed }" x-text="subtask.title"></label>
+                                                    </div>
+                                                    <button type="button" class="text-gray-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        @click="
+                                                            fetch(`/subtasks/${subtask.id}`, {
+                                                                method: 'DELETE',
+                                                                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'), 'Accept': 'application/json' }
+                                                            }).then(() => taskToEdit.subtasks.splice(index, 1));
+                                                        ">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- Add subtask input -->
+                                    <div class="relative">
+                                        <input type="text" x-model="newSubtask" placeholder="Add a new subtask..." 
+                                            @keydown.enter.prevent="
+                                                if(newSubtask.trim() !== '') {
+                                                    fetch(`/tasks/${taskToEdit.id}/subtasks`, {
+                                                        method: 'POST',
+                                                        headers: { 
+                                                            'Content-Type': 'application/json',
+                                                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                                                            'Accept': 'application/json'
+                                                        },
+                                                        body: JSON.stringify({ title: newSubtask })
+                                                    })
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        if(data.success) {
+                                                            if(!taskToEdit.subtasks) taskToEdit.subtasks = [];
+                                                            taskToEdit.subtasks.push(data.subtask);
+                                                            newSubtask = '';
+                                                        }
+                                                    });
+                                                }
+                                            "
+                                            class="w-full bg-white border border-gray-200 rounded-xl px-5 py-3 text-sm text-gray-900 font-medium focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all shadow-sm pr-12">
+                                        <button type="button" class="absolute inset-y-0 right-2 flex items-center p-1 text-emerald-600 hover:text-emerald-700 font-bold text-xl"
+                                            @click="
+                                                if(newSubtask.trim() !== '') {
+                                                    fetch(`/tasks/${taskToEdit.id}/subtasks`, {
+                                                        method: 'POST',
+                                                        headers: { 
+                                                            'Content-Type': 'application/json',
+                                                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                                                            'Accept': 'application/json'
+                                                        },
+                                                        body: JSON.stringify({ title: newSubtask })
+                                                    })
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        if(data.success) {
+                                                            if(!taskToEdit.subtasks) taskToEdit.subtasks = [];
+                                                            taskToEdit.subtasks.push(data.subtask);
+                                                            newSubtask = '';
+                                                        }
+                                                    });
+                                                }
+                                            ">
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
