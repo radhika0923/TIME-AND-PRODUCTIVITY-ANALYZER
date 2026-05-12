@@ -16,18 +16,11 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --bg-main: #F3F4F6; /* Gray 100 */
-            --bg-sidebar: #FFFFFF;
-            --bg-card: #FFFFFF;
-            --border-color: #E5E7EB; /* Gray 200 */
-            --accent-green: #10B981; /* Emerald 500 */
-            --accent-green-dark: #065F46; /* Emerald 800 */
-        }
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main);
-            color: #1F2937; /* Gray 800 */
+        }
+        button, a, [role="button"], [x-on\:click], [\@click] {
+            cursor: pointer;
         }
         [x-cloak] { display: none !important; }
         
@@ -94,16 +87,23 @@
                 });
             @endif
         });
+
+        // Initialize Dark Mode
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased selection:bg-emerald-500 selection:text-white" x-data="{ sidebarOpen: false, profileOpen: false }">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased selection:bg-emerald-500 selection:text-white" x-data="{ sidebarOpen: false, profileOpen: false }">
 
     <div class="flex h-screen overflow-hidden" x-data="{ commandPaletteOpen: false }" @keydown.window.ctrl.k.prevent="commandPaletteOpen = true" @keydown.window.slash.prevent="if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') commandPaletteOpen = true">
         
         <x-sidebar />
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50/50">
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
             
             <x-navbar />
 

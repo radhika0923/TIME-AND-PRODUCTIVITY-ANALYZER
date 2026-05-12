@@ -1,7 +1,7 @@
 @props(['focusInsight'])
 
 <!-- Productivity Insight -->
-<div class="bg-gradient-to-br from-gray-900 to-black rounded-[2rem] p-6 flex flex-col relative overflow-hidden shadow-xl shadow-gray-200">
+<div class="bg-gradient-to-br from-gray-900 to-black rounded-[2rem] p-6 flex flex-col relative overflow-hidden shadow-xl shadow-gray-200 dark:shadow-none">
     <!-- Decorative glow -->
     <div class="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-500/10 blur-3xl rounded-full"></div>
     

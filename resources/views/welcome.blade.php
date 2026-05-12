@@ -15,6 +15,9 @@
                 color: white;
                 overflow-x: hidden;
             }
+            button, a, [role="button"], [x-on\:click], [\@click] {
+                cursor: pointer;
+            }
             #bg-slider {
                 width: 100%;
                 height: 100%;

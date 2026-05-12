@@ -2,18 +2,18 @@
     <!-- Welcome & Actions -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">Welcome back, {{ explode(' ', auth()->user()->name ?? 'User')[0] }}</h1>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-2">Welcome back, {{ explode(' ', auth()->user()->name ?? 'User')[0] }}</h1>
             <div class="flex items-center gap-2 text-gray-500 font-medium">
                 <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></span>
                 Your productivity engine is ready.
             </div>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('time.index') }}" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-lg shadow-gray-200">
+            <a href="{{ route('time.index') }}" class="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-bold text-sm hover:bg-black dark:hover:bg-gray-100 transition-all shadow-lg shadow-gray-200 dark:shadow-none">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Focus Session
             </a>
-            <a href="{{ route('tasks.index') }}" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200">
+            <a href="{{ route('tasks.index') }}" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 dark:shadow-none">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 New Task
             </a>

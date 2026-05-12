@@ -12,6 +12,9 @@
             --accent-green: #10B981;
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); }
+        button, a, [role="button"], [x-on\:click], [\@click] {
+            cursor: pointer;
+        }
         .premium-card {
             background: #FFFFFF;
             border-radius: 1.5rem;

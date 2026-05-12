@@ -14,6 +14,9 @@
             --accent-green-dark: #059669;
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); }
+        button, a, [role="button"], [x-on\:click], [\@click] {
+            cursor: pointer;
+        }
         [x-cloak] { display: none !important; }
         
         .premium-card {

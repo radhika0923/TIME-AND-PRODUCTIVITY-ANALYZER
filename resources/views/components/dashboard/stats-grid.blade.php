@@ -17,29 +17,29 @@
     </div>
 
     <!-- Card 2: Tracked (White Card) -->
-    <div class="group bg-white rounded-[2rem] p-5 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+    <div class="group bg-white dark:bg-gray-800 rounded-[2rem] p-5 border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-300 hover:shadow-md">
         <div class="flex justify-between items-start mb-4">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tracked</p>
-            <div class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+            <div class="w-7 h-7 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-gray-400">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
         </div>
-        <h3 class="text-4xl font-extrabold text-gray-900 mb-3 tabular-nums">{{ $totalTime ?? 0 }}h</h3>
-        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-rose-50 text-[9px] font-bold text-rose-500 uppercase tracking-wider">
-            <span class="text-rose-600">-6</span> hours
+        <h3 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tabular-nums">{{ $totalTime ?? 0 }}h</h3>
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-[9px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">
+            <span class="text-rose-600 dark:text-rose-400">-6</span> hours
         </div>
     </div>
 
     <!-- Card 3: Efficiency (White Card) -->
-    <div class="group bg-white rounded-[2rem] p-5 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+    <div class="group bg-white dark:bg-gray-800 rounded-[2rem] p-5 border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-300 hover:shadow-md">
         <div class="flex justify-between items-start mb-4">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Efficiency</p>
-            <div class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
+            <div class="w-7 h-7 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-gray-400">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
             </div>
         </div>
-        <h3 class="text-4xl font-extrabold text-gray-900 mb-3 tabular-nums">93%</h3>
-        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 text-[9px] font-bold text-emerald-600 uppercase tracking-wider">
+        <h3 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tabular-nums">93%</h3>
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
             12% <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
         </div>
     </div>

@@ -75,16 +75,45 @@
                 color: #94a3b8 !important;
                 text-transform: uppercase !important;
             }
+
+            /* Dark Mode Overrides */
+            html.dark .fc {
+                --fc-border-color: #334155;
+                --fc-page-bg-color: transparent;
+                --fc-neutral-bg-color: #0f172a;
+                --fc-list-event-hover-bg-color: #334155;
+                color: #cbd5e1;
+            }
+            html.dark .fc-theme-standard td, html.dark .fc-theme-standard th {
+                border-color: #334155;
+            }
+            html.dark .fc-toolbar-title {
+                color: #ffffff !important;
+            }
+            html.dark .fc-button {
+                background-color: #1e293b !important;
+                border-color: #334155 !important;
+                color: #94a3b8 !important;
+            }
+            html.dark .fc-button:hover {
+                background-color: #0f172a !important;
+                color: #ffffff !important;
+            }
+            html.dark .fc-button-active {
+                background-color: #10b981 !important;
+                border-color: #10b981 !important;
+                color: white !important;
+            }
         </style>
     </x-slot:styles>
 
     <div class="flex flex-col space-y-8">
         <div>
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">Weekly Planner</h1>
-            <p class="text-gray-500 text-sm font-medium">Schedule your tasks and manage your time slots with precision.</p>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-2">Weekly Planner</h1>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Schedule your tasks and manage your time slots with precision.</p>
         </div>
 
-        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-[2.5rem] p-8 shadow-sm">
             <div id="calendar"></div>
         </div>
     </div>

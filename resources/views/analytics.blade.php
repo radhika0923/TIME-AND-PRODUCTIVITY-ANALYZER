@@ -5,12 +5,12 @@
 
     <!-- Header -->
     <div>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-1">Analytics Overview</h1>
-        <p class="text-gray-500 text-sm">Deep dive into your productivity patterns and task completion.</p>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">Analytics Overview</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Deep dive into your productivity patterns and task completion.</p>
     </div>
 
-    <p class="text-sm text-gray-500 -mt-4 mb-2">
-        Focus streak: <span class="text-emerald-600 font-bold tabular-nums">{{ $focusStreak ?? 0 }}</span> consecutive days with at least 1 minute logged (uses the timezone in Settings).
+    <p class="text-sm text-gray-500 dark:text-gray-400 -mt-4 mb-2">
+        Focus streak: <span class="text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">{{ $focusStreak ?? 0 }}</span> consecutive days with at least 1 minute logged (uses the timezone in Settings).
     </p>
 
     <x-analytics.heatmap :heatmapData="$heatmapData" :maxDailySeconds="$maxDailySeconds" />
@@ -76,7 +76,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#f1f5f9', drawBorder: false },
+                            grid: { color: 'rgba(148, 163, 184, 0.2)', drawBorder: false },
                             ticks: { 
                                 color: '#94a3b8',
                                 font: { weight: '700', size: 10 }
@@ -131,7 +131,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: '#f1f5f9', drawBorder: false },
+                            grid: { color: 'rgba(148, 163, 184, 0.2)', drawBorder: false },
                             ticks: { 
                                 color: '#94a3b8',
                                 font: { weight: '700', size: 10 },

@@ -23,12 +23,12 @@
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900">Time Tracking</h1>
-            <p class="text-gray-500 mt-1">Monitor your productivity sessions in real-time.</p>
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">Time Tracking</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Monitor your productivity sessions in real-time.</p>
         </div>
         
         @if(session('time_log_status'))
-            <div class="rounded-2xl border border-emerald-100 bg-emerald-50 px-6 py-3 text-sm font-bold text-emerald-700 shadow-sm animate-bounce">
+            <div class="rounded-2xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 shadow-sm animate-bounce">
                 {{ session('time_log_status') }}
             </div>
         @endif
