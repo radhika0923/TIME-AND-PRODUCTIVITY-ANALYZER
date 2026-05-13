@@ -293,7 +293,7 @@
                                     if (!preventReload) window.location.reload();
                                 } else {
                                     this.seconds = 0;
-                                    this.msg('Session under 60s not saved.');
+                                    this.msg(data?.message || 'Session not saved.');
                                 }
                             } else { this.msg(data?.message || 'Error', true); }
                         } catch (e) { 

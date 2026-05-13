@@ -174,17 +174,18 @@ class TimeTrackingController extends Controller
 
             $startTime = $user->focus_timer_started_at;
             $taskId = $user->focus_timer_task_id;
-            $maxDurationSeconds = max(0, (int) $startTime->diffInSeconds(now()));
             
             // Allow frontend to specify exact duration (to account for pauses)
             $frontendDuration = $request->input('duration');
-            $durationSeconds = $maxDurationSeconds;
+            $durationSeconds = max(0, (int) $startTime->diffInSeconds(now()));
             
-            if (is_numeric($frontendDuration) && $frontendDuration >= 0 && $frontendDuration <= $maxDurationSeconds) {
+            // Give a generous buffer (e.g. 1 hour) for local clock drift or pausing.
+            // If the frontend duration is somewhat reasonable, trust it.
+            if (is_numeric($frontendDuration) && $frontendDuration >= 0 && $frontendDuration <= ($durationSeconds + 3600)) {
                 $durationSeconds = (int) $frontendDuration;
             }
 
-            $logged = $durationSeconds >= 60;
+            $logged = $durationSeconds > 0;
             if ($logged) {
                 TimeLog::create([
                     'user_id' => $user->id,
@@ -202,7 +203,7 @@ class TimeTrackingController extends Controller
                 'success' => true,
                 'message' => $logged
                     ? 'Timer stopped and session saved.'
-                    : 'Session was under 1 minute and was not saved.',
+                    : 'Session was 0 seconds and was not saved.',
                 'logged' => $logged,
                 'duration_seconds' => $durationSeconds,
             ]);
