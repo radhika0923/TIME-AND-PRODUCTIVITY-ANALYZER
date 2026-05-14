@@ -111,7 +111,7 @@
                     {{-- Submit --}}
                     <div class="flex items-center gap-6 pt-4">
                         <button type="submit"
-                                class="px-10 py-4 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-100 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+                                class="px-10 py-4 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-900/10 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
                             Update Profile
                         </button>
                         @if(session('profile_status'))
@@ -168,7 +168,7 @@
                     {{-- Submit --}}
                     <div class="flex items-center gap-6 pt-4">
                         <button type="submit"
-                                class="px-10 py-4 text-xs font-bold text-white bg-black dark:bg-gray-700 rounded-2xl hover:bg-gray-900 dark:hover:bg-gray-600 shadow-xl shadow-gray-200 dark:shadow-none transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+                                class="px-10 py-4 text-xs font-bold text-white bg-black dark:bg-gray-700 rounded-2xl hover:bg-gray-900 dark:hover:bg-gray-600 shadow-xl shadow-black/5 dark:shadow-none transition-all transform hover:-translate-y-1 uppercase tracking-widest">
                             Update Security
                         </button>
                         @if(session('password_status'))
@@ -230,7 +230,7 @@
                     {{-- Submit --}}
                     <div class="flex items-center gap-6 pt-4">
                         <button type="submit"
-                                class="px-10 py-4 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-100 dark:shadow-none transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+                                class="px-10 py-4 text-xs font-bold text-white bg-emerald-600 rounded-2xl hover:bg-emerald-700 shadow-xl shadow-emerald-900/10 transition-all transform hover:-translate-y-1 uppercase tracking-widest">
                             Update Preferences
                         </button>
                         @if(session('preferences_status'))
