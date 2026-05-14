@@ -19,11 +19,11 @@ class ReminderController extends Controller
 
         $tasks = $user->tasks()->where('status', '!=', 'completed')->get();
 
-        $upcoming = $reminders->filter(fn ($r) => $r->reminder_time > now() && !$r->is_read);
-        $activeMissed = $reminders->filter(fn ($r) => $r->reminder_time <= now() && !$r->is_read);
+        // New Logic: "Active" includes both upcoming and missed reminders as long as they aren't marked as read.
+        $active = $reminders->filter(fn ($r) => !$r->is_read);
         $completed = $reminders->filter(fn ($r) => $r->is_read);
 
-        return view('reminders', compact('upcoming', 'activeMissed', 'completed', 'tasks'));
+        return view('reminders', compact('active', 'completed', 'tasks'));
     }
 
     public function store(Request $request)
@@ -32,13 +32,26 @@ class ReminderController extends Controller
             'title' => 'required|string|max:255',
             'message' => 'nullable|string',
             'task_id' => 'nullable|exists:tasks,id',
+            'new_task_title' => 'nullable|string|max:255',
             'reminder_time' => 'required|date',
         ]);
         
-        // Ensure reminder_time is converted to Carbon if needed, 
-        // though Laravel usually handles this if it's in the $casts or dates array.
-        // We'll trust the mass assignment here.
-        $request->user()->reminders()->create($validated);
+        $taskId = $validated['task_id'];
+        
+        if (!empty($validated['new_task_title'])) {
+            $task = $request->user()->tasks()->create([
+                'title' => $validated['new_task_title'],
+                'status' => 'pending'
+            ]);
+            $taskId = $task->id;
+        }
+
+        $request->user()->reminders()->create([
+            'title' => $validated['title'],
+            'message' => $validated['message'],
+            'task_id' => $taskId,
+            'reminder_time' => $validated['reminder_time'],
+        ]);
 
         return redirect()->route('reminders.index')->with('success', 'Reminder created successfully.');
     }
@@ -51,10 +64,26 @@ class ReminderController extends Controller
             'title' => 'required|string|max:255',
             'message' => 'nullable|string',
             'task_id' => 'nullable|exists:tasks,id',
+            'new_task_title' => 'nullable|string|max:255',
             'reminder_time' => 'required|date',
         ]);
 
-        $reminder->update($validated);
+        $taskId = $validated['task_id'];
+        
+        if (!empty($validated['new_task_title'])) {
+            $task = $request->user()->tasks()->create([
+                'title' => $validated['new_task_title'],
+                'status' => 'pending'
+            ]);
+            $taskId = $task->id;
+        }
+
+        $reminder->update([
+            'title' => $validated['title'],
+            'message' => $validated['message'],
+            'task_id' => $taskId,
+            'reminder_time' => $validated['reminder_time'],
+        ]);
 
         return redirect()->route('reminders.index')->with('success', 'Reminder updated successfully.');
     }
@@ -73,6 +102,6 @@ class ReminderController extends Controller
         $reminder = $request->user()->reminders()->findOrFail($id);
         $reminder->delete();
 
-        return back()->with('success', 'Reminder deleted.');
+        return back()->with('error', 'Reminder deleted.');
     }
 }
