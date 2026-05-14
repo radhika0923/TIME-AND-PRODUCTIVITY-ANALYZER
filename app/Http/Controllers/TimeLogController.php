@@ -13,6 +13,30 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TimeLogController extends Controller
 {
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'duration_hours' => ['required_without:duration_minutes', 'nullable', 'integer', 'min:0', 'max:24'],
+            'duration_minutes' => ['required_without:duration_hours', 'nullable', 'integer', 'min:0', 'max:59'],
+            'task_id' => ['nullable', 'exists:tasks,id'],
+        ]);
+
+        $hours = (int) ($validated['duration_hours'] ?? 0);
+        $minutes = (int) ($validated['duration_minutes'] ?? 0);
+        $seconds = ($hours * 3600) + ($minutes * 60);
+
+        if ($seconds <= 0) {
+            return back()->withErrors(['duration_hours' => 'Please enter a valid duration.'])->withInput();
+        }
+
+        $request->user()->timeLogs()->create([
+            'task_id' => $validated['task_id'] ?? null,
+            'duration' => $seconds,
+        ]);
+
+        return back()->with('time_log_status', 'Session logged successfully.');
+    }
+
     public function update(Request $request, TimeLog $time_log): RedirectResponse
     {
         $this->authorize('update', $time_log);

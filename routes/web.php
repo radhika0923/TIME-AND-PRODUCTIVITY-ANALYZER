@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Time Tracking Routes
     Route::get('/time-tracking', [TimeTrackingController::class, 'index'])->name('time.index');
     Route::get('/time-tracking/export', [TimeLogController::class, 'export'])->name('time.export');
+    Route::post('/time-logs', [TimeLogController::class, 'store'])->name('time-logs.store');
     Route::patch('/time-logs/{time_log}', [TimeLogController::class, 'update'])->name('time-logs.update');
     Route::delete('/time-logs/{time_log}', [TimeLogController::class, 'destroy'])->name('time-logs.destroy');
     Route::post('/time/start', [TimeTrackingController::class, 'start'])

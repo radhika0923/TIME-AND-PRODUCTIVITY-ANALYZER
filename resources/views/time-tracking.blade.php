@@ -42,7 +42,7 @@
         <x-time-tracking.summary-sidebar :sessionsToday="$sessionsToday" />
     </div>
 
-    <x-time-tracking.logs-table :logs="$logs" :filters="$filters ?? []" />
+    <x-time-tracking.logs-table :logs="$logs" :tasks="$editTasks" :filters="$filters ?? []" />
 
     <x-slot:scripts>
         <script>
@@ -319,6 +319,7 @@
             window.editSessionModal = function() {
                 return {
                     open: false, 
+                    openManual: false,
                     updateUrl: '', 
                     duration: 0, 
                     taskId: '',

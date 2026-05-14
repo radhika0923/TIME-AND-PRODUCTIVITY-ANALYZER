@@ -1,10 +1,13 @@
-@props(['logs', 'filters' => []])
+@props(['logs', 'tasks' => [], 'filters' => []])
 
 <!-- LOGS SECTION -->
 <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-[2.5rem] shadow-xl shadow-gray-200/40 dark:shadow-none overflow-hidden mt-12" x-data="editSessionModal()">
     <div class="px-8 py-6 border-b border-gray-50 dark:border-gray-700 flex items-center justify-between">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Sessions</h2>
-        <a href="{{ route('time.export', array_filter($filters)) }}" class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-500/20">Export CSV</a>
+        <div class="flex items-center gap-3">
+            <button @click="openManual = true" class="text-[10px] font-bold uppercase tracking-widest text-white bg-emerald-600 px-4 py-2 rounded-xl shadow-lg shadow-emerald-100">Add Session</button>
+            <a href="{{ route('time.export', array_filter($filters)) }}" class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-100 dark:border-emerald-500/20">Export CSV</a>
+        </div>
     </div>
     
     <div class="overflow-x-auto">
@@ -51,6 +54,45 @@
             {{ $logs->links() }}
         </div>
     @endif
+
+    <!-- Manual Entry Modal -->
+    <div x-show="openManual" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/20 backdrop-blur-sm" x-transition @keydown.escape.window="openManual = false">
+        <div class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-[2rem] max-w-md w-full p-8 shadow-2xl dark:shadow-none" @click.away="openManual = false">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Log Time Manually</h3>
+            <form method="POST" action="{{ route('time-logs.store') }}" class="space-y-6">
+                @csrf
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 mb-4 uppercase text-center tracking-widest">Duration</label>
+                    <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[1.5rem] px-8 py-6">
+                        <div class="flex-1 flex flex-col items-center">
+                            <input type="number" name="duration_hours" min="0" max="24" placeholder="0" class="w-full bg-transparent text-center text-2xl font-bold text-gray-900 dark:text-white focus:outline-none">
+                            <span class="text-[8px] font-bold text-gray-400 uppercase mt-1 tracking-widest">Hrs</span>
+                        </div>
+                        <span class="text-gray-300 dark:text-gray-600 text-2xl font-light">:</span>
+                        <div class="flex-1 flex flex-col items-center">
+                            <input type="number" name="duration_minutes" min="0" max="59" placeholder="0" class="w-full bg-transparent text-center text-2xl font-bold text-gray-900 dark:text-white focus:outline-none">
+                            <span class="text-[8px] font-bold text-gray-400 uppercase mt-1 tracking-widest">Mins</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Linked Task (Optional)</label>
+                    <select name="task_id" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                        <option value="">No task / General Focus</option>
+                        @foreach($tasks as $task)
+                            <option value="{{ $task->id }}">{{ $task->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" @click="openManual = false" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Cancel</button>
+                    <button type="submit" class="px-8 py-3 text-xs font-bold text-white bg-emerald-600 rounded-xl shadow-lg shadow-emerald-100 uppercase tracking-widest hover:bg-emerald-700 transition-colors">Log Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Edit Modal -->
     <div x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/20 backdrop-blur-sm" x-transition>

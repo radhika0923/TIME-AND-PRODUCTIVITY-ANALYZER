@@ -21,10 +21,14 @@ class DashboardController extends Controller
         $completionRate = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
 
         $totalSeconds = (int) $user->timeLogs()->sum('duration');
-        $totalTime = Duration::toDecimalHours($totalSeconds);
+        $runningSeconds = $user->focus_timer_started_at ? now()->diffInSeconds($user->focus_timer_started_at) : 0;
+        
+        $totalTime = Duration::toDecimalHours($totalSeconds + $runningSeconds);
 
         [$todayStart, $todayEnd] = UserTime::todayUtcRange($user);
         $todaySeconds = (int) $user->timeLogs()->whereBetween('created_at', [$todayStart, $todayEnd])->sum('duration');
+        $todaySeconds += $runningSeconds; // Add current session to today's progress
+
         $dailyGoalSeconds = $user->daily_goal_seconds ?? 14400; // default 4 hours
 
         $weekOffset = max(0, min(12, (int) $request->query('week', 0)));
@@ -37,9 +41,17 @@ class DashboardController extends Controller
         }
 
         $chartData = [];
+        $todayDate = Carbon::now($tz)->format('Y-m-d');
+
         foreach ($last7Days as $date) {
             [$ds, $de] = UserTime::dayUtcRange($user, $date);
             $daySeconds = (int) $user->timeLogs()->whereBetween('created_at', [$ds, $de])->sum('duration');
+            
+            // Add running timer to chart if it belongs to today
+            if ($date === $todayDate && $weekOffset === 0) {
+                $daySeconds += $runningSeconds;
+            }
+            
             $chartData[] = round($daySeconds / 3600, 2);
         }
 
