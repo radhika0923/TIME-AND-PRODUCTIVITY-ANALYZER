@@ -91,7 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/analytics', [\App\Http\Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
 
     // Reminder Routes
-    Route::resource('reminders', ReminderController::class)->except(['create', 'edit', 'show', 'update']);
+    Route::resource('reminders', ReminderController::class)->except(['create', 'edit', 'show']);
     Route::patch('/reminders/{id}/read', [ReminderController::class, 'markAsRead'])->name('reminders.read');
 
     // Settings Routes
