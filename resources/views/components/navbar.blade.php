@@ -1,18 +1,18 @@
 <!-- Top Navbar -->
-<header class="h-20 px-6 flex items-center justify-between border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-40 sticky top-0 transition-colors">
+<header class="h-20 px-6 flex items-center justify-between border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-40 sticky top-0 transition-colors">
     <div class="flex items-center gap-4">
-        <button @click="sidebarOpen = true" class="lg:hidden text-gray-400 hover:text-gray-600">
+        <button @click="sidebarOpen = true" class="lg:hidden text-gray-400 hover:text-gray-600 dark:hover:text-white">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <div class="relative hidden sm:block">
-            <button @click="commandPaletteOpen = true" class="w-80 bg-gray-50 border border-gray-200 text-gray-400 text-sm rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all flex items-center justify-between group">
+            <button @click="commandPaletteOpen = true" class="w-80 bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-400 dark:text-slate-500 text-sm rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all flex items-center justify-between group">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     <span>Search or jump to...</span>
                 </div>
                 <div class="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                    <kbd class="px-1.5 py-0.5 text-[10px] font-bold bg-white rounded border border-gray-200 text-gray-400">Ctrl</kbd>
-                    <kbd class="px-1.5 py-0.5 text-[10px] font-bold bg-white rounded border border-gray-200 text-gray-400">K</kbd>
+                    <kbd class="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-slate-700 rounded border border-gray-200 dark:border-slate-600 text-gray-400">Ctrl</kbd>
+                    <kbd class="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-slate-700 rounded border border-gray-200 dark:border-slate-600 text-gray-400">K</kbd>
                 </div>
             </button>
         </div>
@@ -48,7 +48,7 @@
             <button @click="notificationsOpen = !notificationsOpen" @click.away="notificationsOpen = false" class="relative text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                 @if($unreadCount > 0)
-                    <span class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 ring-2 ring-white dark:ring-gray-900 text-[9px] font-bold text-white">{{ $unreadCount }}</span>
+                    <span class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 text-[9px] font-bold text-white">{{ $unreadCount }}</span>
                 @endif
             </button>
 
@@ -59,46 +59,54 @@
                  x-transition:leave="transition ease-in duration-75"
                  x-transition:leave-start="transform opacity-100 scale-100"
                  x-transition:leave-end="transform opacity-0 scale-95"
-                 class="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                <div class="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
+                 class="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 overflow-hidden z-50">
+                <div class="p-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/50">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Notifications</h3>
                     @if($unreadCount > 0)
-                        <span class="text-xs text-emerald-600">{{ $unreadCount }} unread</span>
+                        <span class="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded-full border border-emerald-100 dark:border-emerald-500/20">{{ $unreadCount }} new</span>
                     @endif
                 </div>
                 <div class="max-h-80 overflow-y-auto">
                     @forelse($unreadReminders as $notification)
-                        <div class="p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                            <div class="flex justify-between items-start">
-                                <p class="text-sm font-medium text-gray-900">{{ $notification->title }}</p>
+                        <div class="p-4 border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors relative">
+                            <div class="flex justify-between items-start gap-4">
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $notification->title }}</p>
                                 <form action="{{ route('reminders.read', $notification->id) }}" method="POST">
                                     @csrf @method('PATCH')
-                                    <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-500">Mark read</button>
+                                    <button type="submit" class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 uppercase tracking-wider">Mark read</button>
                                 </form>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $notification->message }}</p>
-                            <span class="text-[10px] text-gray-400 mt-2 block">{{ $notification->reminder_time->diffForHumans() }}</span>
+                            <p class="text-xs text-gray-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">{{ $notification->message }}</p>
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-slate-500 mt-2 block flex items-center gap-1.5 uppercase tracking-tighter">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                {{ $notification->reminder_time->diffForHumans() }}
+                            </span>
                         </div>
                     @empty
-                        <div class="p-4 text-center text-sm text-gray-400">No new notifications</div>
+                        <div class="p-8 text-center flex flex-col items-center justify-center gap-3">
+                            <div class="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl text-emerald-600 dark:text-emerald-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <p class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">No new notifications</p>
+                        </div>
                     @endforelse
                 </div>
-                <div class="p-2 bg-gray-50/50 border-t border-gray-100 text-center">
-                    <a href="{{ route('reminders.index') }}" class="text-xs text-emerald-600 hover:text-emerald-500 font-medium">View all reminders</a>
+                <div class="p-3 bg-gray-50/50 dark:bg-slate-800/50 border-t border-gray-100 dark:border-slate-800 text-center">
+                    <a href="{{ route('reminders.index') }}" class="text-xs font-extrabold text-emerald-600 dark:text-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 uppercase tracking-widest">View all reminders</a>
                 </div>
             </div>
         </div>
         
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" @click.away="open = false" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-700 shadow-sm">
+                <div class="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-sm font-bold text-emerald-700 dark:text-emerald-500 shadow-sm border border-emerald-200 dark:border-emerald-500/20">
                     {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                 </div>
                 <div class="hidden sm:block text-left">
-                    <p class="text-sm font-bold text-gray-900">{{ auth()->user()->name ?? 'User Name' }}</p>
-                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Pro Plan</p>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">{{ auth()->user()->name ?? 'User Name' }}</p>
+                    <p class="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Pro Plan</p>
                 </div>
-                <svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="w-4 h-4 text-gray-400 dark:text-slate-600 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
 
             <div x-show="open" x-cloak
@@ -108,13 +116,13 @@
                  x-transition:leave="transition ease-in duration-75"
                  x-transition:leave-start="transform opacity-100 scale-100"
                  x-transition:leave-end="transform opacity-0 scale-95"
-                 class="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
-                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">Profile</a>
-                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">Settings</a>
-                <div class="h-px bg-gray-100 my-2"></div>
+                 class="absolute right-0 mt-3 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50">
+                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors">Profile</a>
+                <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors">Settings</a>
+                <div class="h-px bg-gray-100 dark:bg-slate-800 my-2"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-rose-500 hover:bg-rose-50 transition-colors">Sign out</button>
+                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors uppercase tracking-widest">Sign out</button>
                 </form>
             </div>
         </div>
