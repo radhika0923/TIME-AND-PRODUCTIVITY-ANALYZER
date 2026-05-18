@@ -1,381 +1,176 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Time & Productivity Analyzer</title>
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            html, body { height: 100%; width: 100%; }
-            body {
-                font-family: 'Instrument Sans', sans-serif;
-                background: linear-gradient(to bottom, #0f172a, #020617);
-                color: white;
-                overflow-x: hidden;
-            }
-            button, a, [role="button"], [x-on\:click], [\@click] {
-                cursor: pointer;
-            }
-            #bg-slider {
-                width: 100%;
-                height: 100%;
-                background-size: cover;
-                background-position: center;
-                transition: opacity 0.75s ease-in-out;
-            }
-            .dark-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                pointer-events: none;
-            }
-            nav {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                z-index: 20;
-                background: linear-gradient(to bottom, #0f172a, transparent);
-                padding: 1.5rem 1.5rem;
-            }
-            .nav-container {
-                max-width: 80rem;
-                margin: 0 auto;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            .logo {
-                font-size: 1.5rem;
-                font-weight: 700;
-            }
-            .nav-links {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-            .nav-links a {
-                padding: 0.5rem 1.25rem;
-                font-size: 0.875rem;
-                text-decoration: none;
-                color: #e5e7eb;
-                transition: color 0.3s;
-            }
-            .nav-links a:hover {
-                color: white;
-            }
-            .signup-btn {
-                padding: 0.5rem 1.25rem;
-                background: #2563eb;
-                border-radius: 0.5rem;
-                transition: background 0.3s;
-                color: white;
-                border: none;
-                cursor: pointer;
-            }
-            .signup-btn:hover {
-                background: #1d4ed8;
-            }
-            .bg-slider-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                z-index: 0;
-                overflow: hidden;
-            }
-            .relative-content {
-                position: relative;
-                z-index: 10;
-            }
-            .hero {
-                height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding-top: 5rem;
-            }
-            .hero-content {
-                max-width: 56rem;
-                margin: 0 auto;
-                padding: 1.5rem;
-            }
-            h1 {
-                font-size: clamp(2rem, 8vw, 3.75rem);
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                line-height: 1.2;
-            }
-            .hero p {
-                font-size: 1.125rem;
-                color: #d1d5db;
-                margin-bottom: 2rem;
-                max-width: 42rem;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .button-group {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                justify-content: center;
-            }
-            @media (min-width: 640px) {
-                .button-group {
-                    flex-direction: row;
-                }
-            }
-            .btn {
-                display: inline-block;
-                padding: 1rem 2rem;
-                font-weight: 600;
-                border-radius: 0.5rem;
-                text-decoration: none;
-                transition: all 0.3s;
-                border: none;
-                cursor: pointer;
-                font-size: 1rem;
-            }
-            .btn-primary {
-                background: #2563eb;
-                color: white;
-            }
-            .btn-primary:hover {
-                background: #1d4ed8;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            }
-            .btn-secondary {
-                border: 2px solid #2563eb;
-                color: #60a5fa;
-                background: transparent;
-            }
-            .btn-secondary:hover {
-                background: #2563eb;
-                color: white;
-            }
-            .features {
-                padding: 5rem 1.5rem;
-                background: linear-gradient(to bottom, transparent, #1e293b, #0f172a);
-                position: relative;
-                z-index: 10;
-            }
-            .features-container {
-                max-width: 80rem;
-                margin: 0 auto;
-            }
-            .features h2 {
-                font-size: clamp(2rem, 6vw, 3rem);
-                font-weight: 700;
-                text-align: center;
-                margin-bottom: 3rem;
-            }
-            .features-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                margin-bottom: 2rem;
-            }
-            @media (min-width: 768px) {
-                .features-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-            }
-            .feature-card {
-                background: #1e293b;
-                padding: 2rem;
-                border-radius: 0.75rem;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-                transition: all 0.3s;
-            }
-            .feature-card:hover {
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-                transform: translateY(-0.5rem);
-            }
-            .feature-icon {
-                font-size: 2.25rem;
-                margin-bottom: 1rem;
-            }
-            .feature-card h3 {
-                font-size: 1.5rem;
-                font-weight: 700;
-                margin-bottom: 0.75rem;
-            }
-            .feature-card p {
-                color: #d1d5db;
-                line-height: 1.6;
-            }
-            .cta {
-                padding: 5rem 1.5rem;
-                background: linear-gradient(to top, #1e40af, transparent);
-                text-align: center;
-                position: relative;
-                z-index: 10;
-            }
-            .cta-content {
-                max-width: 42rem;
-                margin: 0 auto;
-            }
-            .cta h2 {
-                font-size: clamp(1.75rem, 5vw, 2.25rem);
-                font-weight: 700;
-                margin-bottom: 1rem;
-            }
-            .cta p {
-                font-size: 1.125rem;
-                color: #f3f4f6;
-                margin-bottom: 2rem;
-            }
-            .btn-white {
-                background: white;
-                color: #2563eb;
-                font-weight: 700;
-            }
-            .btn-white:hover {
-                background: #f3f4f6;
-            }
-            footer {
-                padding: 3rem 1.5rem;
-                background: #0f172a;
-                border-top: 1px solid #1e293b;
-                text-align: center;
-                color: #9ca3af;
-                position: relative;
-                z-index: 10;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Navigation -->
-        <nav>
-            <div class="nav-container">
-                <div class="logo">⏱ Time Analyzer</div>
-                @if (Route::has('login'))
-                    <div class="nav-links">
-                        @auth
-                            <a href="{{ url('/dashboard') }}">Dashboard</a>
-                        @else
-                            <a href="{{ route('login.form') }}">Log in</a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register.form') }}" class="signup-btn">Sign up</a>
-                            @endif
-                        @endauth
-                    </div>
-                @endif
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zenovo</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body { font-family: 'Instrument Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#fcfcfc] text-slate-800 antialiased overflow-x-hidden relative">
+    <!-- Subtle Background Grid -->
+    <div class="absolute inset-0 z-0 opacity-[0.04] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 32px 32px;"></div>
+    <!-- Navbar -->
+    <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto relative z-20">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-slate-900 text-white rounded flex items-center justify-center font-bold text-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
-        </nav>
+            <span class="font-bold text-lg hidden sm:block">Zenovo</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm font-medium">
+            @auth
+                <a href="{{ url('/dashboard') }}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-900 rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                    <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm"></div>
+                    Dashboard
+                </a>
+            @else
+                <a href="{{ route('login.form') }}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-900 rounded-lg hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                    <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm"></div>
+                    Log in
+                </a>
+            @endauth
+        </div>
+    </nav>
 
-        <!-- Background Image Slider -->
-        <div class="bg-slider-container">
-            <div id="bg-slider"></div>
-            <div class="dark-overlay"></div>
+    <!-- Hero Section -->
+    <main class="pt-16 pb-12 text-center max-w-5xl mx-auto px-4 relative z-10 flex flex-col justify-center min-h-[65vh]">
+
+        <!-- Headline -->
+        <h1 class="text-5xl md:text-[5.5rem] font-bold tracking-tight text-[#1a1a1a] mb-6 max-w-5xl mx-auto leading-[1.1]">
+            Master your time, <br />
+            <span class="text-[#00d26a]">maximize your productivity.</span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="text-lg text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            Track your time, manage your tasks, and unlock actionable insights with AI-powered analytics in a lightning-fast experience.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex items-center justify-center gap-4 mb-16">
+            <a href="#" class="px-6 py-3.5 bg-white border border-slate-200 rounded-xl font-medium text-slate-900 hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-sm"></div>
+                Preview
+            </a>
+            @auth
+                <a href="{{ url('/dashboard') }}" class="px-6 py-3.5 bg-[#00d26a] text-white rounded-xl font-medium hover:bg-[#00b85c] transition-colors shadow-sm shadow-[#00d26a]/20 flex items-center gap-2">
+                    Dashboard
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </a>
+            @endauth
         </div>
 
-        <!-- Main Content -->
-        <div class="relative-content">
-            <!-- Hero Section -->
-            <section class="hero">
-                <div class="hero-content">
-                    <h1>Master Your Time, Maximize Your Productivity</h1>
-                    <p>Track your time, manage your tasks, and unlock actionable insights with AI-powered analytics. Take control of every minute.</p>
-                    
-                    <div class="button-group">
-                        <a href="{{ route('register.form') }}" class="btn btn-primary">Get Started</a>
-                        <a href="{{ route('login.form') }}" class="btn btn-secondary">Log In</a>
-                    </div>
+        <!-- Features Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-y border-slate-200 py-12 mb-8 max-w-5xl mx-auto px-6 relative z-10 bg-[#fcfcfc]">
+            <div class="flex items-center gap-4 text-left">
+                <div class="w-12 h-12 rounded-2xl bg-[#e6faef] text-[#00d26a] flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-            </section>
-
-            <!-- Features Section -->
-            <section class="features">
-                <div class="features-container">
-                    <h2>Powerful Features</h2>
-                    
-                    <div class="features-grid">
-                        <!-- Feature 1: Time Tracking -->
-                        <div class="feature-card">
-                            <div class="feature-icon">⏱️</div>
-                            <h3>Time Tracking</h3>
-                            <p>Automatically track time spent on projects and tasks with precision. Get real-time insights into where your time goes.</p>
-                        </div>
-
-                        <!-- Feature 2: Task Management -->
-                        <div class="feature-card">
-                            <div class="feature-icon">✅</div>
-                            <h3>Task Management</h3>
-                            <p>Organize tasks by priority and deadlines. Break down projects and track completion rates effortlessly.</p>
-                        </div>
-
-                        <!-- Feature 3: Smart Analytics -->
-                        <div class="feature-card">
-                            <div class="feature-icon">📊</div>
-                            <h3>Smart Analytics</h3>
-                            <p>AI-driven insights reveal productivity patterns, bottlenecks, and opportunities for improvement. Make data-driven decisions.</p>
-                        </div>
-                    </div>
+                <div>
+                    <h3 class="font-bold text-[#1a1a1a] text-sm">Precision Time Tracking</h3>
+                    <p class="text-slate-500 text-xs mt-1 font-medium">Track every minute with ease.</p>
                 </div>
-            </section>
-
-            <!-- CTA Section -->
-            <section class="cta">
-                <div class="cta-content">
-                    <h2>Ready to Transform Your Productivity?</h2>
-                    <p>Join thousands of professionals optimizing their time with Time & Productivity Analyzer.</p>
-                    <a href="{{ route('register.form') }}" class="btn btn-white">Start Free Trial</a>
+            </div>
+            <div class="flex items-center gap-4 text-left md:border-l md:border-r border-slate-200 md:px-8">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
-            </section>
-
-            <!-- Footer -->
-            <footer>
-                <p>&copy; 2026 Time & Productivity Analyzer. All rights reserved.</p>
-            </footer>
+                <div>
+                    <h3 class="font-bold text-[#1a1a1a] text-sm">Smart Task Management</h3>
+                    <p class="text-slate-500 text-xs mt-1 font-medium">Organize and prioritize effectively.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 text-left md:pl-8">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-[#1a1a1a] text-sm">AI-Powered Analytics</h3>
+                    <p class="text-slate-500 text-xs mt-1 font-medium">Unlock insights & boost efficiency.</p>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <!-- Background Slider Script -->
-        <script>
-            const bgSlider = document.getElementById('bg-slider');
-            const images = ['/images/bg1.webp', '/images/bg2.png', '/images/bg3.webp'];
-            let currentIndex = 0;
+    <!-- Dark Section Container -->
+    <div class="relative bg-[#1c1c1c] text-white pt-20 pb-24 mt-8 md:rounded-t-[3rem] px-4 mx-0 md:mx-4 overflow-hidden z-20">
+        
+        <!-- Grid Pattern Background -->
+        <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px); background-size: 40px 40px;"></div>
 
-            // Fallback gradients if images don't load
-            const gradients = [
-                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-            ];
+        <!-- Statistics Content -->
+        <div class="max-w-5xl mx-auto text-center md:text-left px-4 relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-semibold text-white/70 mb-8">
+                <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                Statistics
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-end justify-between gap-12 text-left mb-16">
+                <h2 class="text-4xl md:text-[2.75rem] font-bold leading-tight max-w-xl text-white">
+                    Realize how comprehensive Zenovo is!
+                </h2>
+                <div class="max-w-sm mb-2">
+                    <p class="text-[#a1a1aa] text-base mb-4 font-medium leading-relaxed">
+                        Here's a closer look at the numbers that define our tool. See how we measure up!
+                    </p>
+                    <a href="#" class="text-[#84cc16] text-sm font-semibold inline-flex items-center gap-1 hover:text-[#a3e635] transition-colors">
+                        Constantly expanding <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
 
-            function rotateBackground() {
-                currentIndex = (currentIndex + 1) % images.length;
-                
-                // Try to load image, fall back to gradient
-                const img = new Image();
-                img.onload = function() {
-                    bgSlider.style.backgroundImage = `url('${images[currentIndex]}')`;
-                };
-                img.onerror = function() {
-                    bgSlider.style.backgroundImage = gradients[currentIndex];
-                };
-                img.src = images[currentIndex];
-            }
-
-            // Initialize with first image or gradient
-            const img = new Image();
-            img.onload = function() {
-                bgSlider.style.backgroundImage = `url('${images[0]}')`;
-            };
-            img.onerror = function() {
-                bgSlider.style.backgroundImage = gradients[0];
-            };
-            img.src = images[0];
-
-            // Change background every 3.5 seconds
-            setInterval(rotateBackground, 3500);
-        </script>
-    </body>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 border-t border-white/10 rounded-2xl overflow-hidden bg-white/5">
+                <div class="p-8 text-center border-b md:border-b-0 md:border-r border-white/10">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 mb-6 mx-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </div>
+                    <p class="text-[#a1a1aa] text-xs font-semibold mb-2">Active Users</p>
+                    <p class="text-3xl font-bold text-white">10k+</p>
+                </div>
+                <div class="p-8 text-center border-b md:border-b-0 md:border-r border-white/10">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 mb-6 mx-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-[#a1a1aa] text-xs font-semibold mb-2">Hours Tracked</p>
+                    <p class="text-3xl font-bold text-white">1M+</p>
+                </div>
+                <div class="p-8 text-center border-r border-white/10">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 mb-6 mx-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    </div>
+                    <p class="text-[#a1a1aa] text-xs font-semibold mb-2">Widgets & Views</p>
+                    <p class="text-3xl font-bold text-white">50+</p>
+                </div>
+                <div class="p-8 text-center">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 mb-6 mx-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-[#a1a1aa] text-xs font-semibold mb-2">Productivity Boost</p>
+                    <p class="text-3xl font-bold text-white">99%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Next Section (Light green/grey as in bottom of image) -->
+    <div class="bg-[#f2f7f4] pt-24 pb-32">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 shadow-sm mb-8">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                How it works?
+            </div>
+            <h2 class="text-4xl font-bold text-[#1a1a1a] mb-4">Significant reasons why we</h2>
+            <p class="text-[#00d26a] font-medium text-lg flex items-center justify-center gap-2">
+                Top tier design quality
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </p>
+        </div>
+    </div>
+</body>
 </html>
